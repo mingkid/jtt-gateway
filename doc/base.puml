@@ -1,0 +1,37 @@
+@startuml
+group 终端管理
+  GW <-- Platform: creates term
+    group 终端注册
+      Term --> GW: request
+      activate GW
+      GW --> Term: response
+      deactivate GW
+    end
+  Platform --> GW: remove term
+end
+
+group 终端鉴权
+  GW <-- Term: auth
+  activate GW
+  GW --> Term: response
+  deactivate GW
+end
+
+group 终端心跳
+  GW <-- Term: heartbeat
+  activate GW
+  GW --> Term: response
+  deactivate GW
+end
+
+group 终端定位
+  GW <-- Term: location
+  activate GW
+  GW --> Platform: analysis and reporting
+  activate Platform
+  GW <-- Platform: response
+  deactivate Platform
+  GW --> Term: response
+  deactivate GW
+end
+@enduml

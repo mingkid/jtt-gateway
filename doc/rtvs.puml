@@ -1,0 +1,16 @@
+@startuml
+group 实时/历史视频流程
+RTVS --> GW: HTTP request
+GW --> Term: 0x9101/0x9201
+Term --> RTVS: RTP
+end
+
+group 查询列表流程
+RTVS --> GW: HTTP request
+GW --> RTVS: msg id
+GW --> Term: 0x9205
+Term --> GW: 0x1205
+GW --> Redis: Key: OCX_ORDERINFO_[指转JSON定ID]\nValue: VideoOrderAck转JSON
+RTVS --> Redis: read VideoOrderAck
+end
+@enduml
