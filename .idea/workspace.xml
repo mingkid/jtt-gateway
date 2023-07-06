@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89f9613d-68d7-49b1-80a1-e22bdc28ab14" name="Changes" comment="feat: 项目架构搭建" />
+    <list default="true" id="89f9613d-68d7-49b1-80a1-e22bdc28ab14" name="Changes" comment="feat: 项目架构搭建">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/rtvs.puml" beforeDir="false" afterPath="$PROJECT_DIR$/doc/rtvs.puml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
