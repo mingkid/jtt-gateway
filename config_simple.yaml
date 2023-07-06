@@ -1,0 +1,9 @@
+database:
+  host: 127.0.0.1
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: jtt808_gateway
+  max_idle_conns: 20
+  max_open_conns: 30
+  connection_max_lifetime: 2
