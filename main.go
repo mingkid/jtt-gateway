@@ -5,4 +5,6 @@ import (
 )
 
 func main() {
+	service := NewServer("", 7676)
+	service.Serve()
 }

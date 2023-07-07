@@ -4,27 +4,36 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"time"
+
+	jtt808 "github.com/mingkid/g-jtt808"
+	"github.com/mingkid/g-jtt808/msg"
+	msgCom "github.com/mingkid/g-jtt808/msg/common"
+	"github.com/mingkid/jtt808-gateway/log"
 )
 
+// DefaultWriter 默认Writer
+var DefaultWriter io.Writer = os.Stdout
+
 type Server struct {
-	ipAddr net.IPAddr
+	ipAddr string
 	port   uint
 }
 
-// IP 地址
-func (svr *Server) IPAddr() net.IPAddr {
+// IPAddr IP 地址
+func (svr *Server) IPAddr() string {
 	return svr.ipAddr
 }
 
-// 端口
+// Port 端口
 func (svr *Server) Port() uint {
 	return svr.port
 }
 
-// 开启服务
+// Serve 开启服务
 func (svr *Server) Serve() error {
-	l, err := net.Listen("tcp", addr)
+	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", svr.ipAddr, svr.port))
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +45,12 @@ func (svr *Server) Serve() error {
 		if err != nil {
 			panic(err)
 		}
-		go handleConnect(c)
+		go func() {
+			err := handleConnect(c)
+			if err != nil {
+				panic(err)
+			}
+		}()
 	}
 }
 
@@ -84,11 +98,133 @@ func handleConnect(c net.Conn) (err error) {
 	}
 }
 
-func New(ipAddr net.IPAddr, port uint) *Server {
+func NewServer(ipAddr string, port uint) *Server {
 	return &Server{
 		ipAddr: ipAddr,
 		port:   port,
 	}
+}
+
+func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
+	var (
+		msgResH  msg.Head
+		msgResB  msg.M0100
+		msgRespH msg.Head
+		msgRespB msg.M8100
+	)
+
+	// 解码
+	m := msg.NewTermMsg(&msgResH, &msgResB)
+	if err = m.Decode(b); err != nil {
+		return
+	}
+
+	// 业务处理
+	// TODO
+
+	// 结果处理
+	res := msg.M8100Success
+	if err != nil {
+		//if err == application.TermNotFound {
+		//	res = msg.M8100TermNotInDB
+		//} else {
+		//	fmt.Println(err.Error())
+		//	return
+		//}
+	}
+
+	// 打印日志
+	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+		Time:   time.Now(),
+		IP:     c.RemoteAddr(),
+		Phone:  msgResH.Phone(),
+		Result: uint8(res),
+		MsgID:  b[1:3],
+		Data:   b,
+	}))
+
+	// 组装响应
+	msgRespH.SetID(msgCom.TermRegResp)
+	msgRespH.SetPhone(msgResH.Phone())
+	msgRespB.SetToken("123123").SetSerialNumber(msgResH.SerialNum()).SetResult(res)
+	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
+	resp, err = mr.Encode()
+	return
+}
+
+func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
+	var (
+		msgResH  msg.Head
+		msgResB  msg.M0102
+		msgRespH msg.Head
+		msgRespB msg.M8001
+	)
+
+	// 解码
+	m := msg.NewTermMsg(&msgResH, &msgResB)
+	if err = m.Decode(b); err != nil {
+		return
+	}
+
+	// 业务处理
+	// TODO
+
+	// 结果处理
+	res := msg.M8001Success
+	//if isAllow == false {
+	//	res = msg.M8001Fail
+	//}
+
+	// 打印日志
+	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+		Time:   time.Now(),
+		IP:     c.RemoteAddr(),
+		Phone:  msgResH.Phone(),
+		Result: uint8(res),
+		MsgID:  b[1:3],
+		Data:   b,
+	}))
+
+	// 组装响应
+	msgRespH.SetID(msgCom.PlatformCommResp)
+	msgRespH.SetPhone(msgResH.Phone())
+	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(res)
+	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
+	return mr.Encode()
+}
+
+func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
+	var (
+		msgResH  msg.Head
+		msgRespH msg.Head
+		msgRespB msg.M8001
+	)
+
+	// 解码
+	m := msg.NewTermMsg(&msgResH, nil)
+	if err = m.Decode(b); err != nil {
+		return
+	}
+
+	// 打印日志
+	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+		Time:   time.Now(),
+		IP:     c.RemoteAddr(),
+		Phone:  msgResH.Phone(),
+		Result: uint8(msg.M8001Success),
+		MsgID:  b[1:3],
+		Data:   b,
+	}))
+
+	// 业务处理
+	// TODO
+
+	// 组装响应
+	msgRespH.SetID(msgCom.PlatformCommResp)
+	msgRespH.SetPhone(msgResH.Phone())
+	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(msg.M8001Success)
+	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
+	return mr.Encode()
 }
 
 func termLocationBatch(c net.Conn, b []byte) (resp []byte, err error) {
