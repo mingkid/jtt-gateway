@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/mingkid/jtt808-gateway/domain"
+	"github.com/mingkid/jtt808-gateway/domain/service"
+	"gorm.io/gorm"
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	jtt808 "github.com/mingkid/g-jtt808"
@@ -105,6 +109,7 @@ func NewServer(ipAddr string, port uint) *Server {
 	}
 }
 
+// termRegister 终端注册
 func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
@@ -120,17 +125,20 @@ func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	}
 
 	// 业务处理
-	// TODO
+	res := msg.M8100Success
+	termService := service.NewTerminal()
+	_, err = termService.GetBySN(strconv.Itoa(int(msgResH.SerialNum())))
+	if err != gorm.ErrRecordNotFound && err != nil {
+		return nil, err
+	}
 
 	// 结果处理
-	res := msg.M8100Success
-	if err != nil {
-		//if err == application.TermNotFound {
-		//	res = msg.M8100TermNotInDB
-		//} else {
-		//	fmt.Println(err.Error())
-		//	return
-		//}
+	if err == gorm.ErrRecordNotFound {
+		// 终端不存在
+		res = msg.M8100TermRegistered
+	} else {
+		// 终端已注册
+		res = msg.M8100TermRegistered
 	}
 
 	// 打印日志
@@ -152,6 +160,7 @@ func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	return
 }
 
+// termAuth 终端鉴权
 func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
@@ -166,14 +175,17 @@ func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 		return
 	}
 
-	// 业务处理
-	// TODO
-
 	// 结果处理
 	res := msg.M8001Success
 	//if isAllow == false {
 	//	res = msg.M8001Fail
 	//}
+
+	// 业务处理
+	token, _ := msgResB.Token()
+	if token != "123123" {
+		res = msg.M8001Fail
+	}
 
 	// 打印日志
 	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
@@ -193,6 +205,7 @@ func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 	return mr.Encode()
 }
 
+// termHeartbeat 心跳
 func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
@@ -216,13 +229,16 @@ func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
 		Data:   b,
 	}))
 
+	result := msg.M8001Success
+
 	// 业务处理
-	// TODO
+	domain.HeartBeat.Set(strconv.Itoa(int(msgResH.SerialNum())), time.Hour/2)
+	// 读取心跳包发送间隔时间业务失败返回状态要改成 msg.M8001Fail
 
 	// 组装响应
 	msgRespH.SetID(msgCom.PlatformCommResp)
 	msgRespH.SetPhone(msgResH.Phone())
-	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(msg.M8001Success)
+	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(result)
 	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
 	return mr.Encode()
 }
@@ -283,14 +299,24 @@ func termPositionRepose(c net.Conn, b []byte) (resp []byte, err error) {
 		return
 	}
 
-	// 业务处理
-	// TODO
-
 	// 结果处理
 	res := msg.M8001Success
 	if err != nil {
 		fmt.Println(err.Error())
 		res = msg.M8001Fail
+	}
+
+	// 业务处理
+	// TODO
+	platformService := service.NewPlatform()
+	platforms, err := platformService.All()
+	if err != nil {
+		fmt.Println(err.Error())
+		res = msg.M8001Fail
+	}
+
+	for _, platform := range platforms {
+		fmt.Println(platform.Host)
 	}
 
 	// 打印日志

@@ -5,11 +5,17 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	Database database
+	Web      web
+)
+
 type Config struct {
-	Database Database `yaml:"database"`
+	Database database `yaml:"database"`
+	Web      web      `yaml:"web"`
 }
 
-type Database struct {
+type database struct {
 	Host                  string `yaml:"host"`
 	Port                  int    `yaml:"port"`
 	User                  string `yaml:"user"`
@@ -20,7 +26,11 @@ type Database struct {
 	ConnectionMaxLifetime int    `yaml:"connection_max_lifetime"`
 }
 
-func LoadConfig() *Config {
+type web struct {
+	MaxPageSize uint `yaml:"max_page_size"`
+}
+
+func init() {
 	conf := &Config{}
 	v := viper.New()
 	v.SetConfigFile("./config.yaml")
@@ -37,5 +47,7 @@ func LoadConfig() *Config {
 		fmt.Println("解析配置文件错误")
 		panic(err)
 	}
-	return conf
+
+	Database = conf.Database
+	Web = conf.Web
 }
