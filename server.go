@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/mingkid/jtt808-gateway/domain"
-	"github.com/mingkid/jtt808-gateway/domain/service"
-	"gorm.io/gorm"
 	"io"
 	"net"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/mingkid/jtt808-gateway/domain"
+	"github.com/mingkid/jtt808-gateway/domain/service"
+	"gorm.io/gorm"
 
 	jtt808 "github.com/mingkid/g-jtt808"
 	"github.com/mingkid/g-jtt808/msg"
@@ -127,7 +128,12 @@ func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	// 业务处理
 	res := msg.M8100Success
 	termService := service.NewTerminal()
-	_, err = termService.GetBySN(strconv.Itoa(int(msgResH.SerialNum())))
+	var termID string
+	termID, err = msgResB.TermID()
+	if err != nil {
+		return nil, err
+	}
+	_, err = termService.GetBySN(termID)
 	if err != gorm.ErrRecordNotFound && err != nil {
 		return nil, err
 	}
