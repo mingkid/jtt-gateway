@@ -1,32 +1,31 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+	"strings"
+
 	"github.com/mingkid/jtt808-gateway/domain/service"
 	"github.com/mingkid/jtt808-gateway/server/web/common"
 	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type TerminalAPI struct{}
 
 // Post 请求；新增终端
 func (api TerminalAPI) Post(c *gin.Context) {
-	type parameter struct {
-		SN  string `json:"sn" binding:"required"`
-		SIM string `json:"sim"`
-	}
-	var params parameter
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var args service.TermSaveOpt
+	if err := c.ShouldBindJSON(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
+	args.SN = strings.TrimSpace(args.SN)
+	args.SIM = strings.TrimSpace(args.SIM)
+
 	// 创建终端service
 	termService := service.NewTerminal()
-	err := termService.Save(service.TerminalSaveCommander{
-		SN:  params.SN,
-		SIM: params.SIM,
-	})
+	err := termService.Save(args)
 	if err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
