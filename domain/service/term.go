@@ -59,6 +59,17 @@ func (t Terminal) Activate(sn string) (err error) {
 	return err
 }
 
+// Delete 删除终端
+func (t Terminal) Delete(sn string) (err error) {
+	var term *model.Term
+	term, err = t.GetBySN(sn)
+	if err != nil {
+		return err
+	}
+	_, err = dal.Q.Term.Delete(term)
+	return err
+}
+
 func NewTerminal() *Terminal {
 	return &Terminal{}
 }

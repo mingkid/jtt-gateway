@@ -17,7 +17,7 @@ type TerminalAPI struct{}
 // Post 请求；新增终端
 func (api TerminalAPI) Post(c *gin.Context) {
 	var args parms.TermSave
-	if err := c.ShouldBindJSON(&args); err != nil {
+	if err := c.ShouldBind(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
@@ -37,13 +37,28 @@ func (api TerminalAPI) Post(c *gin.Context) {
 
 // Delete 请求；删除终端
 func (api TerminalAPI) Delete(c *gin.Context) {
+	var args parms.TermIdentity
+	if err := c.ShouldBindUri(&args); err != nil {
+		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
+		return
+	}
+	args.SN = strings.TrimSpace(args.SN)
 
+	// 删除终端service
+	termService := service.NewTerminal()
+	err := termService.Delete(args.SN)
+	if err != nil {
+		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
+		return
+	}
+	// 成功响应
+	common.NewSingleResponse(c, nil).Return(http.StatusOK)
 }
 
 func (api TerminalAPI) Register(g *gin.RouterGroup) {
 	r := g.Group("/terminal")
 	{
 		r.POST("", api.Post)         // 新增终端
-		r.DELETE("/:id", api.Delete) // 删除终端
+		r.DELETE("/:sn", api.Delete) // 删除终端
 	}
 }
