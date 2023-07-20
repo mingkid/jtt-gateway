@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/mingkid/jtt808-gateway/domain/service"
+	"github.com/mingkid/jtt808-gateway/server/web/api/internal/parms"
 	"github.com/mingkid/jtt808-gateway/server/web/common"
 	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
 
@@ -15,7 +16,7 @@ type TerminalAPI struct{}
 
 // Post 请求；新增终端
 func (api TerminalAPI) Post(c *gin.Context) {
-	var args service.TermSaveOpt
+	var args parms.TermSave
 	if err := c.ShouldBindJSON(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
@@ -25,7 +26,7 @@ func (api TerminalAPI) Post(c *gin.Context) {
 
 	// 创建终端service
 	termService := service.NewTerminal()
-	err := termService.Save(args)
+	err := termService.Save(args.SN, args.SIM)
 	if err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
