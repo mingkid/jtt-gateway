@@ -1,50 +1,36 @@
 package domain
 
-import (
-	"time"
-)
+import "time"
 
-// TODO
-// 1、创建session类
-// 2、使用init来引用初始化创建他
-// 3、每次发送心跳包就更新对应的缓存
-// 4、读不到数据就默认离线
-
-var HeartBeat *Session
-
+// Session 808 设备连接会话信息
 type Session struct {
-	cache map[string]any
+	Expire time.Duration // 过期时间
 }
 
-func (t *Session) Get(key string) bool {
-	value := t.cache[key]
+// SessionCache 808 设备回话缓存器
+type SessionCache interface {
+	// Set 设置会话
+	Set(sn string, s *Session)
 
-	if value == nil {
-		return false
-	}
-	e, ok := value.(time.Time)
-	if !ok {
-		return false
-	}
-
-	if time.Now().Before(e) {
-		// 过期
-		delete(t.cache, key)
-		return false
-	}
-	return true
+	// Get 获取会话
+	Get(sn string) *Session
 }
 
-func (t *Session) Set(key string, expire time.Duration) {
-	t.cache[key] = expire
+// MemorySessionCache 808 设备连接会话内存缓存器
+type MemorySessionCache struct {
+	cache map[string]*Session
 }
 
-func NewSession() *Session {
-	return &Session{
-		cache: map[string]any{},
+func (m *MemorySessionCache) Set(sn string, s *Session) {
+	m.cache[sn] = s
+}
+
+func (m *MemorySessionCache) Get(sn string) *Session {
+	return m.cache[sn]
+}
+
+func NewMemorySessionCache() *MemorySessionCache {
+	return &MemorySessionCache{
+		cache: make(map[string]*Session, 100),
 	}
-}
-
-func init() {
-	HeartBeat = NewSession()
 }

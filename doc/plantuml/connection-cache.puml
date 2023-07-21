@@ -1,0 +1,6 @@
+@startuml
+service --> db: query for sn
+db --> service: term
+service  --> cache: term.sn
+cache --> service: session
+@enduml

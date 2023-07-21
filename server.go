@@ -5,7 +5,6 @@ import (
 	"io"
 	"net"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/mingkid/jtt808-gateway/domain"
@@ -22,8 +21,9 @@ import (
 var DefaultWriter io.Writer = os.Stdout
 
 type Server struct {
-	ipAddr string
-	port   uint
+	ipAddr   string
+	port     uint
+	sessions domain.SessionCache
 }
 
 // IPAddr IP 地址
@@ -51,7 +51,7 @@ func (svr *Server) Serve() error {
 			panic(err)
 		}
 		go func() {
-			err := handleConnect(c)
+			err := svr.handleConnect(c)
 			if err != nil {
 				panic(err)
 			}
@@ -59,7 +59,7 @@ func (svr *Server) Serve() error {
 	}
 }
 
-func handleConnect(c net.Conn) (err error) {
+func (svr *Server) handleConnect(c net.Conn) (err error) {
 	for {
 		var n int
 		b := make([]byte, 1024)
@@ -81,17 +81,17 @@ func handleConnect(c net.Conn) (err error) {
 		var rb []byte
 		switch jtt808.ExtractMsgID(b) {
 		case msgCom.TermRegister:
-			rb, err = termRegister(c, b)
+			rb, err = svr.termRegister(c, b)
 		case msgCom.TermAuth:
-			rb, err = termAuth(c, b)
+			rb, err = svr.termAuth(c, b)
 		case msgCom.TermHeartbeat:
-			rb, err = termHeartbeat(c, b)
+			rb, err = svr.termHeartbeat(c, b)
 		case msgCom.TermLocationRepose:
-			rb, err = termPositionRepose(c, b)
+			rb, err = svr.termPositionRepose(c, b)
 		case msgCom.TermLocationBatch:
-			rb, err = termLocationBatch(c, b)
+			rb, err = svr.termLocationBatch(c, b)
 		default:
-			rb, err = unknown(c, b)
+			rb, err = svr.unknown(c, b)
 		}
 		if err != nil {
 			fmt.Println(err)
@@ -103,15 +103,16 @@ func handleConnect(c net.Conn) (err error) {
 	}
 }
 
-func NewServer(ipAddr string, port uint) *Server {
+func NewServer(ipAddr string, port uint, cache domain.SessionCache) *Server {
 	return &Server{
-		ipAddr: ipAddr,
-		port:   port,
+		ipAddr:   ipAddr,
+		port:     port,
+		sessions: cache,
 	}
 }
 
 // termRegister 终端注册
-func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgResB  msg.M0100
@@ -167,7 +168,7 @@ func termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 }
 
 // termAuth 终端鉴权
-func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgResB  msg.M0102
@@ -212,7 +213,7 @@ func termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 }
 
 // termHeartbeat 心跳
-func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgRespH msg.Head
@@ -238,8 +239,11 @@ func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
 	result := msg.M8001Success
 
 	// 业务处理
-	domain.HeartBeat.Set(strconv.Itoa(int(msgResH.SerialNum())), time.Hour/2)
-	// 读取心跳包发送间隔时间业务失败返回状态要改成 msg.M8001Fail
+	term, err := service.NewTerminal().GetBySN(msgResH.Phone())
+	if err != nil {
+		return nil, err
+	}
+	svr.updateSession(term.SN)
 
 	// 组装响应
 	msgRespH.SetID(msgCom.PlatformCommResp)
@@ -249,7 +253,7 @@ func termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) {
 	return mr.Encode()
 }
 
-func termLocationBatch(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termLocationBatch(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgResB  msg.M0704
@@ -291,7 +295,7 @@ func termLocationBatch(c net.Conn, b []byte) (resp []byte, err error) {
 	return mr.Encode()
 }
 
-func termPositionRepose(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termPositionRepose(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgResB  msg.M0200
@@ -343,7 +347,7 @@ func termPositionRepose(c net.Conn, b []byte) (resp []byte, err error) {
 	return mr.Encode()
 }
 
-func unknown(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) unknown(c net.Conn, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgRespH msg.Head
@@ -372,4 +376,15 @@ func unknown(c net.Conn, b []byte) (resp []byte, err error) {
 	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(msg.M8001Success)
 	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
 	return mr.Encode()
+}
+
+// updateSession 更新会话信息
+func (svr *Server) updateSession(sn string) {
+	session := svr.sessions.Get(sn)
+	if session == nil {
+		session = new(domain.Session)
+		svr.sessions.Set(sn, session)
+	}
+	session.Expire = time.Minute * 30
+	svr.sessions.Set(sn, session)
 }
