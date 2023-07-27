@@ -1,4 +1,4 @@
-package main
+package jtt808
 
 import (
 	"fmt"
@@ -9,12 +9,13 @@ import (
 
 	"github.com/mingkid/jtt808-gateway/domain"
 	"github.com/mingkid/jtt808-gateway/domain/service"
-	"gorm.io/gorm"
+	"github.com/mingkid/jtt808-gateway/server/jtt808/publish"
 
 	jtt808 "github.com/mingkid/g-jtt808"
 	"github.com/mingkid/g-jtt808/msg"
 	msgCom "github.com/mingkid/g-jtt808/msg/common"
 	"github.com/mingkid/jtt808-gateway/log"
+	"gorm.io/gorm"
 )
 
 // DefaultWriter 默认Writer
@@ -87,7 +88,7 @@ func (svr *Server) handleConnect(c net.Conn) (err error) {
 		case msgCom.TermHeartbeat:
 			rb, err = svr.termHeartbeat(c, b)
 		case msgCom.TermLocationRepose:
-			rb, err = svr.termPositionRepose(c, b)
+			rb, err = svr.termPositionRepose(c.RemoteAddr(), b)
 		case msgCom.TermLocationBatch:
 			rb, err = svr.termLocationBatch(c, b)
 		default:
@@ -295,7 +296,7 @@ func (svr *Server) termLocationBatch(c net.Conn, b []byte) (resp []byte, err err
 	return mr.Encode()
 }
 
-func (svr *Server) termPositionRepose(c net.Conn, b []byte) (resp []byte, err error) {
+func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err error) {
 	var (
 		msgResH  msg.Head
 		msgResB  msg.M0200
@@ -317,7 +318,6 @@ func (svr *Server) termPositionRepose(c net.Conn, b []byte) (resp []byte, err er
 	}
 
 	// 业务处理
-	// TODO
 	platformService := service.NewPlatform()
 	platforms, err := platformService.All()
 	if err != nil {
@@ -326,13 +326,26 @@ func (svr *Server) termPositionRepose(c net.Conn, b []byte) (resp []byte, err er
 	}
 
 	for _, platform := range platforms {
-		fmt.Println(platform.Host)
+		pusher := publish.New(platform.Host)
+		pusher.LocationAPI = platform.LocationAPI
+		t, _ := msgResB.Time()
+		_ = pusher.Locate(publish.LocationOpt{
+			Phone:     msgResH.Phone(),
+			Warning:   uint32(msgResB.Warn()),
+			Status:    uint32(msgResB.Status()),
+			Lat:       msgResB.Latitude(),
+			Lnt:       msgResB.Longitude(),
+			Altitude:  msgResB.Altitude(),
+			Speed:     msgResB.Speed(),
+			Direction: msgResB.Direction(),
+			Time:      uint32(t.Unix()),
+		})
 	}
 
 	// 打印日志
 	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
 		Time:   time.Now(),
-		IP:     c.RemoteAddr(),
+		IP:     addr,
 		Phone:  msgResH.Phone(),
 		Result: uint8(res),
 		MsgID:  b[1:3],
