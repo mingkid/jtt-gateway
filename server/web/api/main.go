@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	terminal  = new(TerminalAPI)
-	terminals = new(TerminalsAPI)
+	terminal  TerminalAPI
+	terminals TerminalsAPI
 )
 
 func RouteRegister(g *gin.Engine) {
