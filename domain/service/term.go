@@ -13,6 +13,10 @@ import (
 
 type Terminal struct{}
 
+func (t Terminal) All() ([]*model.Term, error) {
+	return dal.Q.Term.Find()
+}
+
 func (t Terminal) GetBySN(sn string) (term *model.Term, err error) {
 	term, err = dal.Q.Term.Where(dal.Q.Term.SN.Like(fmt.Sprintf("%%%s", sn))).First()
 	return
