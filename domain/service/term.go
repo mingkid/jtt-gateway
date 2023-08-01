@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/mingkid/jtt808-gateway/dal"
+	"github.com/mingkid/jtt808-gateway/dal/mapper"
+
 	"github.com/mingkid/jtt808-gateway/model"
 	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
 
@@ -14,11 +15,11 @@ import (
 type Terminal struct{}
 
 func (t Terminal) All() ([]*model.Term, error) {
-	return dal.Q.Term.Find()
+	return mapper.Q.Term.Find()
 }
 
 func (t Terminal) GetBySN(sn string) (term *model.Term, err error) {
-	term, err = dal.Q.Term.Where(dal.Q.Term.SN.Like(fmt.Sprintf("%%%s", sn))).First()
+	term, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Like(fmt.Sprintf("%%%s", sn))).First()
 	return
 }
 
@@ -35,9 +36,9 @@ func (t Terminal) Save(sn, sim string) (err error) {
 	if term != nil {
 		// 更新终端
 		term.SIM = sim
-		_, err = dal.Q.Term.Where(dal.Q.Term.SN.Eq(sn)).Updates(&term)
+		_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Eq(sn)).Updates(&term)
 	} else {
-		err = dal.Q.Term.Create(&model.Term{
+		err = mapper.Q.Term.Create(&model.Term{
 			SN:  sn,
 			SIM: sim,
 			Alive: sql.NullBool{
@@ -60,7 +61,7 @@ func (t Terminal) Activate(sn string) (err error) {
 		Bool:  true,
 		Valid: true,
 	}
-	_, err = dal.Q.Term.Where(dal.Q.Term.SN.Eq(sn)).Updates(term)
+	_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Eq(sn)).Updates(term)
 	return err
 }
 
@@ -71,7 +72,7 @@ func (t Terminal) Delete(sn string) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = dal.Q.Term.Delete(term)
+	_, err = mapper.Q.Term.Delete(term)
 	return err
 }
 

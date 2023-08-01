@@ -2,8 +2,9 @@ package db
 
 import (
 	"fmt"
+
 	"github.com/mingkid/jtt808-gateway/conf"
-	"github.com/mingkid/jtt808-gateway/dal"
+	"github.com/mingkid/jtt808-gateway/dal/mapper"
 	"github.com/mingkid/jtt808-gateway/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,5 +28,5 @@ func init() {
 		fmt.Println(err.Error())
 		panic("数据库迁移")
 	}
-	dal.SetDefault(DB)
+	mapper.SetDefault(DB)
 }
