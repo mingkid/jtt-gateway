@@ -47,6 +47,18 @@ func (ctrl TermController) create(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "term/edit.html", nil)
 }
 
+// 编辑页
+func (ctrl TermController) edit(ctx *gin.Context) {
+	term, err := ctrl.svr.GetBySN(ctx.Param("sn"))
+	if err != nil {
+		ctx.String(http.StatusNotFound, "%s", "Not Found")
+	}
+	ctx.HTML(http.StatusOK, "term/edit.html", gin.H{
+		"title": "终端编辑",
+		"term":  term,
+	})
+}
+
 // 提交
 func (ctrl TermController) submit(ctx *gin.Context) {
 	// 创建FormData结构体实例
@@ -81,6 +93,7 @@ func (ctrl TermController) Register(g *gin.Engine) {
 		// 页面渲染 Endpoint
 		group.GET("", ctrl.index)
 		group.GET("/create", ctrl.create)
+		group.GET("/edit/:sn", ctrl.edit)
 	}
 	{
 		// 接口 Endpoint
