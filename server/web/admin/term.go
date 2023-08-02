@@ -5,6 +5,7 @@ import (
 
 	"github.com/mingkid/jtt808-gateway/domain/service"
 	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/parms"
+	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/resp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,10 +17,19 @@ type TermController struct {
 
 // 列表页
 func (ctrl TermController) index(ctx *gin.Context) {
-	terms, _ := ctrl.svr.All()
+	dataSet, _ := ctrl.svr.All()
+	var terms []resp.Term
+	for _, data := range dataSet {
+		terms = append(terms, resp.Term{
+			SN:     data.SN,
+			SIM:    data.SIM,
+			Status: true,
+		})
+	}
+
 	ctx.HTML(http.StatusOK, "term/index.html", gin.H{
-		"title": "Hello World",
-		"terms": terms,
+		"title": "终端",
+		"Terms": terms,
 	})
 }
 
@@ -39,10 +49,11 @@ func (ctrl TermController) submit(ctx *gin.Context) {
 		return
 	}
 
-	// 处理表单数据（在这里可以将数据保存到数据库，或进行其他操作）
-	// 例如，打印表单数据
-	println("序列号:", args.SN)
-	println("SIM卡号:", args.SIM)
+	// 处理表单数据
+	err := ctrl.svr.Save(args.SN, args.SIM)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "系统异常：%s", err.Error())
+	}
 
 	// 返回响应给前端
 	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)

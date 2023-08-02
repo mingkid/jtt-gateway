@@ -1,36 +1,35 @@
 {{ define "term/index.html" }}
 {{ template "term/header.html" . }}
-<button type="button" class="btn btn-primary float-end">
+<a href="/term/create" class="btn btn-primary float-end">
     <i class="bi bi-plus-circle"></i>
     新增终端
-</button>
+</a>
+
 <table class="table">
     <thead>
     <tr>
-        <th scope="col">#</th>
-        <th scope="col">序号</th>
+        <th scope="col">序列号</th>
         <th scope="col">SIM</th>
         <th scope="col">状态</th>
         <th scope="col">操作</th>
     </tr>
     </thead>
     <tbody>
-    {{ range .terms }}
+    {{ range .Terms }}
     <tr>
-        <th scope="row">{{ .index }}</th>
-        <td>{{ .SN }}</td>
+        <th scope="row">{{ .SN }}</th>
         <td>{{ .SIM }}</td>
         <td>
-            {{ if .status }}
+            {{ if .Status }}
             <span class="badge bg-success">在线</span>
             {{ else }}
             <span class="badge bg-danger">离线</span>
             {{ end }}
         </td>
         <td>
-            <button type="button" class="btn btn-primary btn-sm">
+            <a class="btn btn-primary btn-sm">
                 <i class="bi bi-pencil-square"></i>
-            </button>
+            </a>
             <button type="button" class="btn btn-danger btn-sm">
                 <i class="bi bi-trash-fill"></i>
             </button>
