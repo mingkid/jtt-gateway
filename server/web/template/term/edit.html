@@ -1,0 +1,16 @@
+{{ define "term/edit.html" }}
+{{ template "term/header.html" . }}
+<h2>新增终端</h2>
+<form action="/term/submit" method="post">
+  <div class="mb-3">
+    <label for="sn" class="form-label">序列号</label>
+    <input type="text" class="form-control" id="sn" name="sn" placeholder="请输入序列号" required>
+  </div>
+  <div class="mb-3">
+    <label for="sim" class="form-label">SIM卡号</label>
+    <input type="text" class="form-control" id="sim" name="sim" placeholder="请输入SIM卡号" required>
+  </div>
+  <button type="submit" class="btn btn-primary">提交</button>
+</form>
+{{ template "term/footer.html" . }}
+{{ end }}
