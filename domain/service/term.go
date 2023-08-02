@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/mingkid/jtt808-gateway/dal/mapper"
@@ -41,28 +40,9 @@ func (t Terminal) Save(sn, sim string) (err error) {
 		err = mapper.Q.Term.Create(&model.Term{
 			SN:  sn,
 			SIM: sim,
-			Alive: sql.NullBool{
-				Bool:  false,
-				Valid: true,
-			},
 		})
 	}
 	return
-}
-
-// Activate 设置终端状态
-func (t Terminal) Activate(sn string) (err error) {
-	var term *model.Term
-	term, err = t.GetBySN(sn)
-	if err != nil {
-		return err
-	}
-	term.Alive = sql.NullBool{
-		Bool:  true,
-		Valid: true,
-	}
-	_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Eq(sn)).Updates(term)
-	return err
 }
 
 // Delete 删除终端

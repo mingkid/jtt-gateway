@@ -2,7 +2,9 @@ package admin
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/mingkid/jtt808-gateway/dal"
 	"github.com/mingkid/jtt808-gateway/domain/service"
 	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/parms"
 	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/resp"
@@ -20,10 +22,17 @@ func (ctrl TermController) index(ctx *gin.Context) {
 	dataSet, _ := ctrl.svr.All()
 	var terms []resp.Term
 	for _, data := range dataSet {
+		// 计算设备存活状态
+		status := false
+		if data.Interval.Valid {
+			session := dal.DefaultSessionCache.Get(data.SN)
+			status = time.Now().Unix()+int64(data.Interval.Int32) <= session.Expire
+		}
+
 		terms = append(terms, resp.Term{
 			SN:     data.SN,
 			SIM:    data.SIM,
-			Status: true,
+			Status: status,
 		})
 	}
 

@@ -1,10 +1,8 @@
 package domain
 
-import "time"
-
 // Session 808 设备连接会话信息
 type Session struct {
-	Expire time.Duration // 过期时间
+	Expire int64 // 过期时间戳
 }
 
 // SessionCache 808 设备回话缓存器

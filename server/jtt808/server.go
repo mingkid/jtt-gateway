@@ -398,6 +398,6 @@ func (svr *Server) updateSession(sn string) {
 		session = new(domain.Session)
 		svr.sessions.Set(sn, session)
 	}
-	session.Expire = time.Minute * 30
+	session.Expire = int64(time.Minute * 30)
 	svr.sessions.Set(sn, session)
 }
