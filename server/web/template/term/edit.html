@@ -9,7 +9,7 @@
   <div class="mb-3">
     <label for="sn" class="form-label">序列号</label>
     {{ if .term.SN }}
-    <input type="text" class="form-control" id="sn" name="sn" placeholder="请输入序列号" value="{{ .term.SN }}" required disabled autocomplete="off">
+    <input type="text" class="form-control" id="sn" name="sn" placeholder="请输入序列号" value="{{ .term.SN }}" required readonly autocomplete="off">
     {{ else }}
     <input type="text" class="form-control" id="sn" name="sn" placeholder="请输入序列号" required autocomplete="off">
     {{ end }}

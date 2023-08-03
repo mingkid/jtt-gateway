@@ -27,7 +27,23 @@ func (ctrl PlatformController) index(ctx *gin.Context) {
 
 // 创建页
 func (ctrl PlatformController) create(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "platform/edit.html", nil)
+	ctx.HTML(http.StatusOK, "platform/edit.html", gin.H{
+		"Title": "平台新增",
+	})
+}
+
+// 编辑页
+func (ctrl PlatformController) edit(ctx *gin.Context) {
+	platform, err := ctrl.svr.GetByIdentity(ctx.Param("identity"))
+	if err != nil {
+		ctx.String(http.StatusNotFound, "%s", "Not Found")
+	}
+
+	// 返回响应给前端
+	ctx.HTML(http.StatusOK, "platform/edit.html", gin.H{
+		"Title":    "平台编辑",
+		"Platform": platform,
+	})
 }
 
 // 提交接口
@@ -62,6 +78,7 @@ func (ctrl PlatformController) Register(g *gin.Engine) {
 		// 页面渲染 Endpoint
 		group.GET("", ctrl.index)
 		group.GET("/create", ctrl.create)
+		group.GET("/edit/:identity", ctrl.edit)
 	}
 	{
 		// 接口 Endpoint

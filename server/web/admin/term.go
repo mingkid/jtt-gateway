@@ -45,7 +45,9 @@ func (ctrl TermController) index(ctx *gin.Context) {
 
 // 创建页
 func (ctrl TermController) create(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "term/edit.html", nil)
+	ctx.HTML(http.StatusOK, "term/edit.html", gin.H{
+		"title": "终端新增",
+	})
 }
 
 // 编辑页

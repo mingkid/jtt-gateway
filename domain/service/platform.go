@@ -31,6 +31,7 @@ func (p Platform) Save(opt PlatformSaveOpt) error {
 		// 更新
 		platform.Host = opt.Host
 		platform.LocationAPI = opt.LocationAPI
+		_, err = mapper.Q.Platform.Where(mapper.Q.Platform.Identity.Eq(opt.Identity)).Updates(&platform)
 	}
 	return nil
 }
