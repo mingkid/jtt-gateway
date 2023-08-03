@@ -30,9 +30,9 @@
             <a href="/term/edit/{{ .SN }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-pencil-square"></i>
             </a>
-            <button type="button" class="btn btn-danger btn-sm">
+            <a href="/term/del/{{ .SN }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该项数据吗？')">
                 <i class="bi bi-trash-fill"></i>
-            </button>
+            </a>
         </td>
     </tr>
     {{ end }}

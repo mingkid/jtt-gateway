@@ -36,6 +36,7 @@ func (ctrl TermController) index(ctx *gin.Context) {
 		})
 	}
 
+	// 返回响应给前端
 	ctx.HTML(http.StatusOK, "term/index.html", gin.H{
 		"title": "终端",
 		"Terms": terms,
@@ -53,13 +54,26 @@ func (ctrl TermController) edit(ctx *gin.Context) {
 	if err != nil {
 		ctx.String(http.StatusNotFound, "%s", "Not Found")
 	}
+
+	// 返回响应给前端
 	ctx.HTML(http.StatusOK, "term/edit.html", gin.H{
 		"title": "终端编辑",
 		"term":  term,
 	})
 }
 
-// 提交
+// 删除接口
+func (ctrl TermController) del(ctx *gin.Context) {
+	err := ctrl.svr.Delete(ctx.Param("sn"))
+	if err != nil {
+		ctx.String(http.StatusNotFound, "%s", "Not Found")
+	}
+
+	// 返回响应给前端
+	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
+}
+
+// 提交接口
 func (ctrl TermController) submit(ctx *gin.Context) {
 	// 创建FormData结构体实例
 	var args parms.Term
@@ -98,5 +112,6 @@ func (ctrl TermController) Register(g *gin.Engine) {
 	{
 		// 接口 Endpoint
 		group.POST("/submit", ctrl.submit)
+		group.GET("del/:sn", ctrl.del)
 	}
 }
