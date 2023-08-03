@@ -71,6 +71,17 @@ func (ctrl PlatformController) submit(ctx *gin.Context) {
 	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
 }
 
+// 删除接口
+func (ctrl PlatformController) del(ctx *gin.Context) {
+	err := ctrl.svr.Delete(ctx.Param("ident"))
+	if err != nil {
+		ctx.String(http.StatusNotFound, "%s", "Not Found")
+	}
+
+	// 返回响应给前端
+	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
+}
+
 // Register 注册控制器到指定的 Web 服务实例中
 func (ctrl PlatformController) Register(g *gin.Engine) {
 	group := g.Group(ctrl.routeGroupPath)
@@ -83,6 +94,7 @@ func (ctrl PlatformController) Register(g *gin.Engine) {
 	{
 		// 接口 Endpoint
 		group.POST("/submit", ctrl.submit)
+		group.GET("/del/:ident", ctrl.del)
 	}
 }
 

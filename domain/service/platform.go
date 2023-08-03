@@ -36,9 +36,18 @@ func (p Platform) Save(opt PlatformSaveOpt) error {
 	return nil
 }
 
-func (p Platform) GetByIdentity(identity string) (platform *model.Platform, err error) {
-	platform, err = mapper.Q.Platform.Where(mapper.Q.Platform.Identity.Eq(identity)).First()
+func (p Platform) GetByIdentity(ident string) (platform *model.Platform, err error) {
+	platform, err = mapper.Q.Platform.Where(mapper.Q.Platform.Identity.Eq(ident)).First()
 	return
+}
+
+func (p Platform) Delete(ident string) error {
+	platform, err := p.GetByIdentity(ident)
+	if err != nil {
+		return err
+	}
+	_, err = mapper.Q.Platform.Delete(platform)
+	return err
 }
 
 // PlatformSaveOpt 平台保存选项
