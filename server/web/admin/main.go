@@ -6,9 +6,11 @@ import (
 )
 
 var (
-	termIndex = NewTermController(service.Terminal{})
+	termCtrl     = NewTermController(service.Terminal{})
+	platformCtrl = NewPlatformController(service.Platform{})
 )
 
 func RouteRegister(g *gin.Engine) {
-	termIndex.Register(g)
+	termCtrl.Register(g)
+	platformCtrl.Register(g)
 }

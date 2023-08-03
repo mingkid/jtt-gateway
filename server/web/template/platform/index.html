@@ -1,0 +1,40 @@
+{{ define "platform/index.html" }}
+{{ template "platform/header.html" . }}
+<a href="/term/create" class="btn btn-primary float-end">
+  <i class="bi bi-plus-circle"></i>
+  新增平台
+</a>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">平台标识</th>
+    <th scope="col">域名</th>
+    <th scope="col">接口</th>
+    <th scope="col">操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{ range .Platforms }}
+  <tr>
+    <th scope="row">{{ .Identity }}</th>
+    <td>{{ .Host }}</td>
+    <td>
+      <span class="badge text-bg-secondary">0x0200</span>
+      <span class="badge text-bg-secondary">0x0200</span>
+      <span class="badge text-bg-secondary">0x0200</span>
+    </td>
+    <td>
+      <a href="#" class="btn btn-primary btn-sm">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a href="#" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该项数据吗？')">
+        <i class="bi bi-trash-fill"></i>
+      </a>
+    </td>
+  </tr>
+  {{ end }}
+  </tbody>
+</table>
+{{ template "platform/footer.html" . }}
+{{ end }}

@@ -10,7 +10,3 @@ type Platform struct{}
 func (p Platform) All() ([]*model.Platform, error) {
 	return mapper.Q.Platform.Find()
 }
-
-func NewPlatform() *Platform {
-	return &Platform{}
-}

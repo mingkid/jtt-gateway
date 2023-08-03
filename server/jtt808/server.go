@@ -318,7 +318,7 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 	}
 
 	// 业务处理
-	platformService := service.NewPlatform()
+	platformService := service.Platform{}
 	platforms, err := platformService.All()
 	if err != nil {
 		fmt.Println(err.Error())
