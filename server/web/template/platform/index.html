@@ -1,6 +1,6 @@
 {{ define "platform/index.html" }}
 {{ template "platform/header.html" . }}
-<a href="/term/create" class="btn btn-primary float-end">
+<a href="/platform/create" class="btn btn-primary float-end">
   <i class="bi bi-plus-circle"></i>
   新增平台
 </a>
@@ -20,9 +20,9 @@
     <th scope="row">{{ .Identity }}</th>
     <td>{{ .Host }}</td>
     <td>
+      {{ if .LocationAPI }}
       <span class="badge text-bg-secondary">0x0200</span>
-      <span class="badge text-bg-secondary">0x0200</span>
-      <span class="badge text-bg-secondary">0x0200</span>
+      {{ end }}
     </td>
     <td>
       <a href="#" class="btn btn-primary btn-sm">

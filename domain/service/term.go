@@ -25,7 +25,7 @@ func (t Terminal) GetBySN(sn string) (term *model.Term, err error) {
 func (t Terminal) Save(sn, sim string) (err error) {
 	// 只提供更新SIM
 	if sn == "" {
-		return errcode.SNCanNotNull
+		return errcode.TermSNNotNull
 	}
 	// 判断终端是否存在数据库
 	term, err := t.GetBySN(sn)

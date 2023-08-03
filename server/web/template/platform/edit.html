@@ -1,0 +1,28 @@
+{{ define "platform/edit.html" }}
+{{ template "platform/header.html" . }}
+{{ if .platform.Identity }}
+<h2>编辑平台</h2>
+{{ else }}
+<h2>新增平台</h2>
+{{ end }}
+<form action="/platform/submit" method="post">
+  <div class="mb-3">
+    <label for="identity" class="form-label">平台标识</label>
+    {{ if .platform.Identity }}
+    <input type="text" class="form-control" id="identity" name="identity" placeholder="请输入平台标识" value="{{ .platform.Identity }}" required disabled autocomplete="off">
+    {{ else }}
+    <input type="text" class="form-control" id="identity" name="identity" placeholder="请输入平台标识" required autocomplete="off">
+    {{ end }}
+  </div>
+  <div class="mb-3">
+    <label for="host" class="form-label">域名</label>
+    <input type="text" class="form-control" id="host" name="host" placeholder="请输入域名" value="{{ .platform.Host }}" required autocomplete="off">
+  </div>
+  <div class="mb-3">
+    <label for="host" class="form-label">定位汇报 API</label>
+    <input type="text" class="form-control" id="locationAPI" name="locationAPI" placeholder="请输入定位汇报 API相对地址" value="{{ .platform.LocationAPI }}" required autocomplete="off">
+  </div>
+  <button type="submit" class="btn btn-primary">提交</button>
+</form>
+{{ template "platform/footer.html" . }}
+{{ end }}

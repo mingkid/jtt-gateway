@@ -80,7 +80,7 @@ func (ctrl TermController) submit(ctx *gin.Context) {
 
 	// 将请求参数绑定到数据模型
 	if err := ctx.ShouldBind(&args); err != nil {
-		ctx.String(http.StatusBadRequest, "参数绑定错误：%s", err.Error())
+		ctx.String(http.StatusBadRequest, "参数异常：%s", err.Error())
 		return
 	}
 

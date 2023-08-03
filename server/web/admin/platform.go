@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/mingkid/jtt808-gateway/domain/service"
+	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/parms"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,8 +21,38 @@ func (ctrl PlatformController) index(ctx *gin.Context) {
 	// 返回响应给前端
 	ctx.HTML(http.StatusOK, "platform/index.html", gin.H{
 		"Title":     "业务平台",
-		"platforms": platforms,
+		"Platforms": platforms,
 	})
+}
+
+// 创建页
+func (ctrl PlatformController) create(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "platform/edit.html", nil)
+}
+
+// 提交接口
+func (ctrl PlatformController) submit(ctx *gin.Context) {
+	// 创建FormData结构体实例
+	var args parms.Platform
+
+	// 将请求参数绑定到数据模型
+	if err := ctx.ShouldBind(&args); err != nil {
+		ctx.String(http.StatusBadRequest, "参数异常：%s", err.Error())
+		return
+	}
+
+	// 处理表单数据
+	err := ctrl.svr.Save(service.PlatformSaveOpt{
+		Identity:    args.Identity,
+		Host:        args.Host,
+		LocationAPI: args.LocationAPI,
+	})
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "系统异常：%s", err.Error())
+	}
+
+	// 返回响应给前端
+	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
 }
 
 // Register 注册控制器到指定的 Web 服务实例中
@@ -30,6 +61,11 @@ func (ctrl PlatformController) Register(g *gin.Engine) {
 	{
 		// 页面渲染 Endpoint
 		group.GET("", ctrl.index)
+		group.GET("/create", ctrl.create)
+	}
+	{
+		// 接口 Endpoint
+		group.POST("/submit", ctrl.submit)
 	}
 }
 
