@@ -2,17 +2,20 @@ package conf
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
 var (
 	Database database
 	Web      web
+	JTT808   jtt808
 )
 
 type Config struct {
-	Database database `yaml:"database"`
-	Web      web      `yaml:"web"`
+	Database database `yaml:"database"` // 数据库配置
+	Web      web      `yaml:"web"`      // Web 服务配置
+	JTT808   jtt808   `yaml:"jtt808"`   // JTT808 服务配置
 }
 
 type database struct {
@@ -28,6 +31,11 @@ type database struct {
 
 type web struct {
 	MaxPageSize uint `yaml:"max_page_size"`
+	Port        uint `yaml:"port"`
+}
+
+type jtt808 struct {
+	Port uint `yaml:"port"`
 }
 
 func init() {
@@ -50,4 +58,5 @@ func init() {
 
 	Database = conf.Database
 	Web = conf.Web
+	JTT808 = conf.JTT808
 }

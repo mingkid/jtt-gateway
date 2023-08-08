@@ -7,3 +7,7 @@ database:
   max_idle_conns: 20
   max_open_conns: 30
   connection_max_lifetime: 2
+web:
+  port: 8000
+jtt808:
+  port: 9300
