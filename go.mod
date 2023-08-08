@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/mingkid/g-jtt808 v0.0.0-20230316184944-6f90b3f7ba3f
+	github.com/mingkid/g-jtt808 v0.0.0-20230808022728-c6fa02ed43a9
 	github.com/spf13/viper v1.16.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gen v0.3.22

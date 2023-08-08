@@ -4,9 +4,8 @@ import (
 	"fmt"
 
 	"github.com/mingkid/jtt808-gateway/dal/mapper"
-
 	"github.com/mingkid/jtt808-gateway/model"
-	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
+	"github.com/mingkid/jtt808-gateway/pkg/errcode"
 
 	"gorm.io/gorm"
 )

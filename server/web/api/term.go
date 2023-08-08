@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/mingkid/jtt808-gateway/domain/service"
+	"github.com/mingkid/jtt808-gateway/pkg/errcode"
 	"github.com/mingkid/jtt808-gateway/server/web/api/internal/parms"
 	"github.com/mingkid/jtt808-gateway/server/web/common"
-	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
 
 	"github.com/gin-gonic/gin"
 )

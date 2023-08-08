@@ -68,7 +68,7 @@ func (svr *Server) handleConnect(c net.Conn) (err error) {
 		if err != nil {
 			if err == io.EOF {
 				fmt.Printf("[JTT808] 终端 %s 已断开连接！ \n", c.RemoteAddr())
-				return
+				return nil
 			}
 			fmt.Println(err)
 		}
@@ -326,20 +326,8 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 	}
 
 	for _, platform := range platforms {
-		pusher := publish.New(platform.Host)
-		pusher.LocationAPI = platform.LocationAPI
-		t, _ := msgResB.Time()
-		_ = pusher.Locate(publish.LocationOpt{
-			Phone:     msgResH.Phone(),
-			Warning:   uint32(msgResB.Warn()),
-			Status:    uint32(msgResB.Status()),
-			Lat:       msgResB.Latitude(),
-			Lnt:       msgResB.Longitude(),
-			Altitude:  msgResB.Altitude(),
-			Speed:     msgResB.Speed(),
-			Direction: msgResB.Direction(),
-			Time:      uint32(t.Unix()),
-		})
+		pusher := publish.New(platform.Host, platform.LocationAPI)
+		_ = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), msgResB))
 	}
 
 	// 打印日志

@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/mingkid/jtt808-gateway/dal/mapper"
 	"github.com/mingkid/jtt808-gateway/model"
-	"github.com/mingkid/jtt808-gateway/server/web/common/errcode"
+	"github.com/mingkid/jtt808-gateway/pkg/errcode"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func (p Platform) All() ([]*model.Platform, error) {
 
 func (p Platform) Save(opt PlatformSaveOpt) error {
 	if opt.Identity == "" {
-		return errcode.PlantformIdentityNotNull
+		return errcode.PlatformIdentityNotNull
 	}
 
 	platform, err := p.GetByIdentity(opt.Identity)
