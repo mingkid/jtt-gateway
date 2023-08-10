@@ -240,7 +240,7 @@ func (svr *Server) termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) 
 	result := msg.M8001Success
 
 	// 业务处理
-	term, err := service.NewTerminal().GetBySN(msgResH.Phone())
+	term, err := service.NewTerminal().GetBySN(msgResH.Phone()[3:])
 	if err != nil {
 		return nil, err
 	}
