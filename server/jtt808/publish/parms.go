@@ -31,7 +31,7 @@ func (l LocationOpt) Buffer() (*bytes.Buffer, error) {
 	return bytes.NewBuffer(locationJson), nil
 }
 
-func NewLocationOpt(phone string, msg msg.M0200) LocationOpt {
+func NewLocationOpt(phone string, msg msg.M0200, isReReport bool) LocationOpt {
 	t, _ := msg.Time()
 	extra, _ := msg.Extras()
 	return LocationOpt{
@@ -42,7 +42,7 @@ func NewLocationOpt(phone string, msg msg.M0200) LocationOpt {
 		Speed:      msg.Speed(),
 		Direction:  msg.Direction(),
 		LocateAt:   t.Unix(),
-		IsReReport: false,
+		IsReReport: isReReport,
 		Warning:    NewWarning(msg.Warn()),
 		Status:     NewStatus(msg.Status()),
 		M0200Extra: NewExtra(extra),

@@ -268,14 +268,30 @@ func (svr *Server) termLocationBatch(c net.Conn, b []byte) (resp []byte, err err
 		return
 	}
 
-	// 业务处理
-	// TODO
-
 	// 结果处理
 	res := msg.M8001Success
 	if err != nil {
 		fmt.Println(err.Error())
 		res = msg.M8001Fail
+	}
+
+	// 业务处理
+	platformService := service.Platform{}
+	platforms, err := platformService.All()
+	if err != nil {
+		fmt.Println(err.Error())
+		res = msg.M8001Fail
+	}
+
+	for _, platform := range platforms {
+		pusher := publish.New(platform.Host, platform.LocationAPI)
+		locations, err := msgResB.Items()
+		if err != nil {
+			return nil, err
+		}
+		for _, location := range locations {
+			_ = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), location, true))
+		}
 	}
 
 	// 打印日志
@@ -327,7 +343,7 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 
 	for _, platform := range platforms {
 		pusher := publish.New(platform.Host, platform.LocationAPI)
-		_ = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), msgResB))
+		_ = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), msgResB, false))
 	}
 
 	// 打印日志
