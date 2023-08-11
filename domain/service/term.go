@@ -12,6 +12,18 @@ import (
 
 type Terminal struct{}
 
+// Locate 定位汇报
+func (t Terminal) Locate(sn string, lng, lat float64) error {
+	term, err := t.GetBySN(sn)
+	if err != nil {
+		return err
+	}
+	term.Lng = lng
+	term.Lat = lat
+	_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Like("%" + sn)).Updates(&term)
+	return nil
+}
+
 func (t Terminal) All() ([]*model.Term, error) {
 	return mapper.Q.Term.Find()
 }

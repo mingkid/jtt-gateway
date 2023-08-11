@@ -33,6 +33,8 @@ func (ctrl TermController) index(ctx *gin.Context) {
 			SN:     data.SN,
 			SIM:    data.SIM,
 			Status: status,
+			Lng:    data.Lng,
+			Lat:    data.Lat,
 		})
 	}
 

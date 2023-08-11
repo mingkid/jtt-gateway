@@ -333,7 +333,17 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 		res = msg.M8001Fail
 	}
 
-	// 业务处理
+	// 业务处理：终端定位更新
+	termService := service.Terminal{}
+	lng := float64(msgResB.Longitude()) / 1000000.0
+	lat := float64(msgResB.Latitude()) / 1000000.0
+	err = termService.Locate(msgResH.Phone()[3:], lng, lat)
+	if err != nil {
+		fmt.Println(err.Error())
+		res = msg.M8001Fail
+	}
+
+	// 业务处理：终端定位推送到业务平台
 	platformService := service.Platform{}
 	platforms, err := platformService.All()
 	if err != nil {

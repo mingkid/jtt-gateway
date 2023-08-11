@@ -11,6 +11,7 @@
         <th scope="col">序列号</th>
         <th scope="col">SIM</th>
         <th scope="col">状态</th>
+        <th scope="col">经纬度</th>
         <th scope="col">操作</th>
     </tr>
     </thead>
@@ -26,6 +27,7 @@
             <span class="badge bg-danger">离线</span>
             {{ end }}
         </td>
+        <td>{{ .Lng }}, {{ .Lat }}</td>
         <td>
             <a href="/term/edit/{{ .SN }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-pencil-square"></i>
