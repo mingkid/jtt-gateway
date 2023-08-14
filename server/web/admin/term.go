@@ -23,10 +23,10 @@ func (ctrl TermController) index(ctx *gin.Context) {
 	var terms []resp.Term
 	for _, data := range dataSet {
 		// 计算设备存活状态
+		session := dal.DefaultSessionCache.Get(data.SN)
 		status := false
-		if data.Interval.Valid {
-			session := dal.DefaultSessionCache.Get(data.SN)
-			status = time.Now().Unix()+int64(data.Interval.Int32) <= session.Expire
+		if session != nil {
+			status = time.Now().Unix() <= session.Expire
 		}
 
 		terms = append(terms, resp.Term{

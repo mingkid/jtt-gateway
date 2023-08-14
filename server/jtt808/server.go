@@ -185,15 +185,17 @@ func (svr *Server) termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 
 	// 结果处理
 	res := msg.M8001Success
-	//if isAllow == false {
-	//	res = msg.M8001Fail
-	//}
 
 	// 业务处理
+	term, err := service.NewTerminal().GetBySN(msgResH.Phone()[3:])
+	if err != nil {
+		return nil, err
+	}
 	token, _ := msgResB.Token()
 	if token != "123123" {
 		res = msg.M8001Fail
 	}
+	svr.updateSession(term.SN)
 
 	// 打印日志
 	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
@@ -410,8 +412,7 @@ func (svr *Server) updateSession(sn string) {
 	session := svr.sessions.Get(sn)
 	if session == nil {
 		session = new(domain.Session)
-		svr.sessions.Set(sn, session)
 	}
-	session.Expire = int64(time.Minute * 30)
+	session.Expire = int64(time.Minute*5) + time.Now().Unix()
 	svr.sessions.Set(sn, session)
 }
