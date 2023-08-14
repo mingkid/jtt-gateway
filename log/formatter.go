@@ -16,6 +16,7 @@ type InfoFormatterParams struct {
 	Phone  string
 	MsgID  []byte
 	Data   []byte
+	Error  error
 }
 
 func (p InfoFormatterParams) ResultColor() string {
@@ -34,12 +35,20 @@ func DefaultInfoFormatter(params InfoFormatterParams) string {
 	if params.Result > 0 {
 		result = "Failed"
 	}
-	return fmt.Sprintf("[JTT808] %v | %s | %15s ｜%s %v %s｜%s | %s \n",
+
+	format := "[JTT808] %v | %s | %15s ｜%s %v %s｜%s | %s \n"
+	a := []any{
 		params.Time.Format("2006/01/02 - 15:04:05"),
 		params.IP,
 		params.Phone,
 		params.ResultColor(), result, params.ResetColor(),
 		hex.EncodeToString(params.MsgID),
 		hex.EncodeToString(params.Data),
-	)
+	}
+	if params.Error != nil {
+		format = "[JTT808] %v | %s | %15s ｜%s %v %s｜%s | %s: \n %s \n"
+		a = append(a, params.Error.Error())
+	}
+
+	return fmt.Sprintf(format, a...)
 }

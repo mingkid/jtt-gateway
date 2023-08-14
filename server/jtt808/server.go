@@ -9,13 +9,13 @@ import (
 
 	"github.com/mingkid/jtt808-gateway/domain"
 	"github.com/mingkid/jtt808-gateway/domain/service"
+	"github.com/mingkid/jtt808-gateway/log"
+	"github.com/mingkid/jtt808-gateway/model"
 	"github.com/mingkid/jtt808-gateway/server/jtt808/publish"
 
 	jtt808 "github.com/mingkid/g-jtt808"
 	"github.com/mingkid/g-jtt808/msg"
 	msgCom "github.com/mingkid/g-jtt808/msg/common"
-	"github.com/mingkid/jtt808-gateway/log"
-	"gorm.io/gorm"
 )
 
 // DefaultWriter 默认Writer
@@ -119,6 +119,8 @@ func (svr *Server) termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 		msgResB  msg.M0100
 		msgRespH msg.Head
 		msgRespB msg.M8100
+
+		res = msg.M8100Success
 	)
 
 	// 解码
@@ -128,25 +130,15 @@ func (svr *Server) termRegister(c net.Conn, b []byte) (resp []byte, err error) {
 	}
 
 	// 业务处理
-	res := msg.M8100Success
 	termService := service.NewTerminal()
 	var termID string
-	termID, err = msgResB.TermID()
-	if err != nil {
-		return nil, err
+	if termID, err = msgResB.TermID(); err != nil {
+		res = msg.M8100TermNotInDB
+		return
 	}
-	_, err = termService.GetBySN(termID)
-	if err != gorm.ErrRecordNotFound && err != nil {
-		return nil, err
-	}
-
-	// 结果处理
-	if err == gorm.ErrRecordNotFound {
-		// 终端不存在
-		res = msg.M8100TermRegistered
-	} else {
-		// 终端已注册
-		res = msg.M8100TermRegistered
+	if _, err = termService.GetBySN(termID); err != nil {
+		res = msg.M8100TermNotInDB
+		return
 	}
 
 	// 打印日志
@@ -175,6 +167,8 @@ func (svr *Server) termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 		msgResB  msg.M0102
 		msgRespH msg.Head
 		msgRespB msg.M8001
+
+		res = msg.M8001Success
 	)
 
 	// 解码
@@ -183,22 +177,8 @@ func (svr *Server) termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 		return
 	}
 
-	// 结果处理
-	res := msg.M8001Success
-
-	// 业务处理
-	term, err := service.NewTerminal().GetBySN(msgResH.Phone()[3:])
-	if err != nil {
-		return nil, err
-	}
-	token, _ := msgResB.Token()
-	if token != "123123" {
-		res = msg.M8001Fail
-	}
-	svr.updateSession(term.SN)
-
 	// 打印日志
-	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+	defer fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
 		Time:   time.Now(),
 		IP:     c.RemoteAddr(),
 		Phone:  msgResH.Phone(),
@@ -206,6 +186,25 @@ func (svr *Server) termAuth(c net.Conn, b []byte) (resp []byte, err error) {
 		MsgID:  b[1:3],
 		Data:   b,
 	}))
+
+	// 业务处理
+	var term *model.Term
+	if term, err = service.NewTerminal().GetBySN(msgResH.Phone()[3:]); err != nil {
+		res = msg.M8001Fail
+		return
+	}
+
+	// 业务处理：token 校验
+	token := ""
+	if token, err = msgResB.Token(); err != nil {
+		res = msg.M8001Fail
+		return
+	}
+	if token != "123123" {
+		res = msg.M8001Fail
+	}
+
+	svr.updateSession(term.SN)
 
 	// 组装响应
 	msgRespH.SetID(msgCom.PlatformCommResp)
@@ -221,6 +220,8 @@ func (svr *Server) termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) 
 		msgResH  msg.Head
 		msgRespH msg.Head
 		msgRespB msg.M8001
+
+		res = msg.M8001Success
 	)
 
 	// 解码
@@ -230,28 +231,28 @@ func (svr *Server) termHeartbeat(c net.Conn, b []byte) (resp []byte, err error) 
 	}
 
 	// 打印日志
-	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+	defer fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
 		Time:   time.Now(),
 		IP:     c.RemoteAddr(),
 		Phone:  msgResH.Phone(),
-		Result: uint8(msg.M8001Success),
+		Result: uint8(res),
 		MsgID:  b[1:3],
 		Data:   b,
+		Error:  err,
 	}))
-
-	result := msg.M8001Success
 
 	// 业务处理
 	term, err := service.NewTerminal().GetBySN(msgResH.Phone()[3:])
 	if err != nil {
-		return nil, err
+		res = msg.M8001Fail
+		return
 	}
 	svr.updateSession(term.SN)
 
 	// 组装响应
 	msgRespH.SetID(msgCom.PlatformCommResp)
 	msgRespH.SetPhone(msgResH.Phone())
-	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(result)
+	msgRespB.SetMsgID(msgResH.MsgID()).SetSerialNumber(msgResH.SerialNum()).SetResult(res)
 	mr := msg.NewPlantFormMsg(&msgRespH, msgRespB)
 	return mr.Encode()
 }
@@ -320,6 +321,8 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 		msgResB  msg.M0200
 		msgRespH msg.Head
 		msgRespB msg.M8001
+
+		res = msg.M8001Success
 	)
 
 	// 解码
@@ -328,38 +331,8 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 		return
 	}
 
-	// 结果处理
-	res := msg.M8001Success
-	if err != nil {
-		fmt.Println(err.Error())
-		res = msg.M8001Fail
-	}
-
-	// 业务处理：终端定位更新
-	termService := service.Terminal{}
-	lng := float64(msgResB.Longitude()) / 1000000.0
-	lat := float64(msgResB.Latitude()) / 1000000.0
-	err = termService.Locate(msgResH.Phone()[3:], lng, lat)
-	if err != nil {
-		fmt.Println(err.Error())
-		res = msg.M8001Fail
-	}
-
-	// 业务处理：终端定位推送到业务平台
-	platformService := service.Platform{}
-	platforms, err := platformService.All()
-	if err != nil {
-		fmt.Println(err.Error())
-		res = msg.M8001Fail
-	}
-
-	for _, platform := range platforms {
-		pusher := publish.New(platform.Host, platform.LocationAPI)
-		_ = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), msgResB, false))
-	}
-
 	// 打印日志
-	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+	defer fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
 		Time:   time.Now(),
 		IP:     addr,
 		Phone:  msgResH.Phone(),
@@ -367,6 +340,32 @@ func (svr *Server) termPositionRepose(addr net.Addr, b []byte) (resp []byte, err
 		MsgID:  b[1:3],
 		Data:   b,
 	}))
+
+	// 业务处理：终端定位更新
+	termService := service.Terminal{}
+	lng := float64(msgResB.Longitude()) / 1000000.0
+	lat := float64(msgResB.Latitude()) / 1000000.0
+	err = termService.Locate(msgResH.Phone()[3:], lng, lat)
+	if err != nil {
+		res = msg.M8001Fail
+		return
+	}
+
+	// 业务处理：终端定位推送到业务平台
+	var platforms []*model.Platform
+	platformService := service.Platform{}
+	if platforms, err = platformService.All(); err != nil {
+		res = msg.M8001Fail
+		return
+	}
+
+	for _, platform := range platforms {
+		pusher := publish.New(platform.Host, platform.LocationAPI)
+		if err = pusher.Locate(publish.NewLocationOpt(msgResH.Phone(), msgResB, false)); err != nil {
+			res = msg.M8001Fail
+			return
+		}
+	}
 
 	// 组装响应
 	msgRespH.SetID(msgCom.PlatformCommResp)
@@ -390,7 +389,7 @@ func (svr *Server) unknown(c net.Conn, b []byte) (resp []byte, err error) {
 	}
 
 	// 打印日志
-	fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
+	defer fmt.Fprint(DefaultWriter, log.DefaultInfoFormatter(log.InfoFormatterParams{
 		Time:   time.Now(),
 		IP:     c.RemoteAddr(),
 		Phone:  msgResH.Phone(),
