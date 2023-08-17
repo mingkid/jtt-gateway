@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/mingkid/jtt808-gateway/domain"
+	"github.com/mingkid/jtt808-gateway/domain/conn"
 	"github.com/mingkid/jtt808-gateway/domain/service"
 	"github.com/mingkid/jtt808-gateway/log"
 	"github.com/mingkid/jtt808-gateway/model"
@@ -24,7 +24,7 @@ var DefaultWriter io.Writer = os.Stdout
 type Server struct {
 	ipAddr   string
 	port     uint
-	sessions domain.SessionCache
+	connPool conn.ConnPool
 }
 
 // IPAddr IP 地址
@@ -104,11 +104,11 @@ func (svr *Server) handleConnect(c net.Conn) (err error) {
 	}
 }
 
-func NewServer(ipAddr string, port uint, cache domain.SessionCache) *Server {
+func New(ipAddr string, port uint, connPool conn.ConnPool) *Server {
 	return &Server{
 		ipAddr:   ipAddr,
 		port:     port,
-		sessions: cache,
+		connPool: connPool,
 	}
 }
 
@@ -408,10 +408,10 @@ func (svr *Server) unknown(c net.Conn, b []byte) (resp []byte, err error) {
 
 // updateSession 更新会话信息
 func (svr *Server) updateSession(sn string) {
-	session := svr.sessions.Get(sn)
-	if session == nil {
-		session = new(domain.Session)
+	c := svr.connPool.Get(sn)
+	if c == nil {
+		c = new(conn.Connection)
 	}
-	session.Expire = int64(time.Minute*5) + time.Now().Unix()
-	svr.sessions.Set(sn, session)
+	c.SetExpireDurationFromNow(time.Minute * 5)
+	svr.connPool.Set(sn, c)
 }
