@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-// MemoryConnPool JTT808 设备连接池
+// MemoryConnPool JTT 设备连接池
 type MemoryConnPool struct {
 	conns map[string]*Connection
 	mu    sync.Mutex

@@ -3,9 +3,9 @@ package db
 import (
 	"fmt"
 
-	"github.com/mingkid/jtt808-gateway/conf"
-	"github.com/mingkid/jtt808-gateway/dal/mapper"
-	"github.com/mingkid/jtt808-gateway/model"
+	"github.com/mingkid/jtt-gateway/conf"
+	"github.com/mingkid/jtt-gateway/dal/mapper"
+	"github.com/mingkid/jtt-gateway/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

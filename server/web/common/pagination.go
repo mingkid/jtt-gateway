@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mingkid/jtt808-gateway/conf"
+	"github.com/mingkid/jtt-gateway/conf"
 )
 
 func GetPage(c *gin.Context) uint {

@@ -9,13 +9,13 @@ import (
 var (
 	Database database
 	Web      web
-	JTT808   jtt808
+	JTT      jtt
 )
 
 type Config struct {
 	Database database `yaml:"database"` // 数据库配置
 	Web      web      `yaml:"web"`      // Web 服务配置
-	JTT808   jtt808   `yaml:"jtt808"`   // JTT808 服务配置
+	JTT      jtt      `yaml:"jtt"`      // JTT 服务配置
 }
 
 type database struct {
@@ -34,7 +34,7 @@ type web struct {
 	Port        uint `yaml:"port"`
 }
 
-type jtt808 struct {
+type jtt struct {
 	Port uint `yaml:"port"`
 }
 
@@ -58,5 +58,5 @@ func init() {
 
 	Database = conf.Database
 	Web = conf.Web
-	JTT808 = conf.JTT808
+	JTT = conf.JTT
 }

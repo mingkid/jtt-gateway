@@ -2,7 +2,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mingkid/jtt808-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/domain/service"
 )
 
 var (

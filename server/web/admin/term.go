@@ -3,10 +3,10 @@ package admin
 import (
 	"net/http"
 
-	"github.com/mingkid/jtt808-gateway/domain/conn"
-	"github.com/mingkid/jtt808-gateway/domain/service"
-	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/parms"
-	"github.com/mingkid/jtt808-gateway/server/web/admin/internal/resp"
+	"github.com/mingkid/jtt-gateway/domain/conn"
+	"github.com/mingkid/jtt-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/server/web/admin/internal/parms"
+	"github.com/mingkid/jtt-gateway/server/web/admin/internal/resp"
 
 	"github.com/gin-gonic/gin"
 )

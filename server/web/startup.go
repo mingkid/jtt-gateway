@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/mingkid/jtt808-gateway/server/web/admin"
-	v1 "github.com/mingkid/jtt808-gateway/server/web/api"
+	"github.com/mingkid/jtt-gateway/server/web/admin"
+	v1 "github.com/mingkid/jtt-gateway/server/web/api"
 
 	"github.com/gin-gonic/gin"
 )

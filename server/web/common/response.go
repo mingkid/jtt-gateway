@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mingkid/jtt808-gateway/pkg/errcode"
+	"github.com/mingkid/jtt-gateway/pkg/errcode"
 )
 
 type Response interface {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/mingkid/jtt808-gateway/pkg/errcode"
+	"github.com/mingkid/jtt-gateway/pkg/errcode"
 )
 
 // HTTP 订阅服务

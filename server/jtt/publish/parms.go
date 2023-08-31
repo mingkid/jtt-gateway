@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/mingkid/g-jtt808/msg"
+	"github.com/mingkid/g-jtt/protocol/msg"
 )
 
 type LocationOpt struct {
@@ -31,21 +31,20 @@ func (l LocationOpt) Buffer() (*bytes.Buffer, error) {
 	return bytes.NewBuffer(locationJson), nil
 }
 
-func NewLocationOpt(phone string, msg msg.M0200, isReReport bool) LocationOpt {
-	t, _ := msg.Time()
-	extra, _ := msg.Extras()
+func NewLocationOpt(phone string, msg *msg.M0200, isReReport bool) LocationOpt {
+	t, _ := msg.LocateTime()
 	return LocationOpt{
 		Phone:      phone,
-		Longitude:  msg.Longitude(),
-		Latitude:   msg.Latitude(),
-		Altitude:   msg.Altitude(),
-		Speed:      msg.Speed(),
-		Direction:  msg.Direction(),
+		Longitude:  msg.Longitude,
+		Latitude:   msg.Latitude,
+		Altitude:   msg.Altitude,
+		Speed:      msg.Speed,
+		Direction:  msg.Direction,
 		LocateAt:   t.Unix(),
 		IsReReport: isReReport,
-		Warning:    NewWarning(msg.Warn()),
-		Status:     NewStatus(msg.Status()),
-		M0200Extra: NewExtra(extra),
+		Warning:    NewWarning(msg.Warn),
+		Status:     NewStatus(msg.Status),
+		M0200Extra: NewExtra(msg.Extra),
 	}
 }
 
@@ -139,27 +138,27 @@ type Status struct {
 	GalileoUsed         bool  `json:"galileoUsed"`         // 21: 0：未使用Galileo卫星进行定位；1：使用Galileo卫星进行定位
 }
 
-func NewStatus(msg msg.M0200Status) Status {
+func NewStatus(status msg.M0200Status) Status {
 	return Status{
-		ACCOn:               msg.ACCOn(),
-		PositionOn:          msg.PositionOn(),
-		IsSLat:              msg.IsSLat(),
-		IsWLong:             msg.IsWLong(),
-		InOperation:         msg.IsOperation(),
-		Encrypted:           msg.IsEncrypt(),
+		ACCOn:               status.ACCOn(),
+		PositionOn:          status.PositionOn(),
+		IsSLat:              status.IsSLat(),
+		IsWLong:             status.IsWLong(),
+		InOperation:         status.Operating(),
+		Encrypted:           status.Encrypted(),
 		LoadStatus:          0,
-		IsOilChannelNormal:  msg.IsOilChannelNormal(),
-		IsCircuitNormal:     msg.IsCircuitNormal(),
-		DoorLocked:          msg.IsDoorLock(),
-		FrontDoorOpened:     msg.IsFrontDoorOpen(),
-		MidDoorOpened:       msg.IsMidDoorOpen(),
-		BackDoorOpened:      msg.IsBackDoorOpen(),
-		DriveRoomDoorOpened: msg.IsDriveRoomDoorOpen(),
-		ElseRoomDoorOpened:  msg.IsElseRoomDoorOpen(),
-		GPSUsed:             msg.UsedGPS(),
-		BeiDouUsed:          msg.UsedBPS(),
-		GLONASSUsed:         msg.UsedGLONASS(),
-		GalileoUsed:         msg.UsedGalileo(),
+		IsOilChannelNormal:  status.OilChannelNormal(),
+		IsCircuitNormal:     status.CircuitNormal(),
+		DoorLocked:          status.DoorLocked(),
+		FrontDoorOpened:     status.FrontDoorOpened(),
+		MidDoorOpened:       status.MidDoorOpened(),
+		BackDoorOpened:      status.BackDoorOpened(),
+		DriveRoomDoorOpened: status.DriveRoomDoorOpened(),
+		ElseRoomDoorOpened:  status.ElseRoomDoorOpened(),
+		GPSUsed:             status.GPSUsed(),
+		BeiDouUsed:          status.BPSUsed(),
+		GLONASSUsed:         status.GLONASSUsed(),
+		GalileoUsed:         status.GalileoUsed(),
 	}
 }
 

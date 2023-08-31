@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/mingkid/jtt808-gateway/db"
-	"github.com/mingkid/jtt808-gateway/model"
+	"github.com/mingkid/jtt-gateway/db"
+	"github.com/mingkid/jtt-gateway/model"
+
 	"gorm.io/gen"
 )
 

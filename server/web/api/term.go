@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mingkid/jtt808-gateway/domain/service"
-	"github.com/mingkid/jtt808-gateway/pkg/errcode"
-	"github.com/mingkid/jtt808-gateway/server/web/api/internal/parms"
-	"github.com/mingkid/jtt808-gateway/server/web/common"
+	"github.com/mingkid/jtt-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/pkg/errcode"
+	"github.com/mingkid/jtt-gateway/server/web/api/internal/req"
+	"github.com/mingkid/jtt-gateway/server/web/common"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ type TerminalAPI struct{}
 
 // post 请求；新增终端
 func (api TerminalAPI) post(c *gin.Context) {
-	var args parms.TermSave
+	var args req.TermSave
 	if err := c.ShouldBind(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
@@ -37,7 +37,7 @@ func (api TerminalAPI) post(c *gin.Context) {
 
 // delete 请求；删除终端
 func (api TerminalAPI) delete(c *gin.Context) {
-	var args parms.TermIdentity
+	var args req.TermIdentity
 	if err := c.ShouldBindUri(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return

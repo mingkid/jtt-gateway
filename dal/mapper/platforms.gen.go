@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/mingkid/jtt808-gateway/model"
+	"github.com/mingkid/jtt-gateway/model"
 )
 
 func newPlatform(db *gorm.DB, opts ...gen.DOOption) platform {

@@ -9,5 +9,5 @@ database:
   connection_max_lifetime: 2
 web:
   port: 8000
-jtt808:
+jtt:
   port: 9300
