@@ -1,13 +1,13 @@
-package api
+package internal
 
 import (
 	"net/http"
 	"strings"
 
 	"github.com/mingkid/jtt-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/http/internal/api/internal/req"
+	"github.com/mingkid/jtt-gateway/http/internal/common"
 	"github.com/mingkid/jtt-gateway/pkg/errcode"
-	"github.com/mingkid/jtt-gateway/server/web/api/internal/req"
-	"github.com/mingkid/jtt-gateway/server/web/common"
 
 	"github.com/gin-gonic/gin"
 )

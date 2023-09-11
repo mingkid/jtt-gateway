@@ -1,14 +1,16 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/mingkid/jtt-gateway/http/internal/api/internal"
 	"github.com/mingkid/jtt-gateway/log"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
-	terminal  TerminalAPI
-	terminals TerminalsAPI
-	videoCtrl *videoControlAPI
+	terminal  internal.TerminalAPI
+	terminals internal.TerminalsAPI
+	videoCtrl *internal.VideoControlAPI
 )
 
 func RouteRegister(g *gin.Engine) {
@@ -24,5 +26,5 @@ func RouteRegister(g *gin.Engine) {
 }
 
 func init() {
-	videoCtrl = NewVideoControlAPI(log.RTVSInfoLoggerAdapter(log.RTVSInfoTermLog))
+	videoCtrl = internal.NewVideoControlAPI(log.RTVSInfoLoggerAdapter(log.RTVSInfoTermLog))
 }

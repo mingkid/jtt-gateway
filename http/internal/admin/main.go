@@ -3,11 +3,12 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mingkid/jtt-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/http/internal/admin/internal"
 )
 
 var (
-	termCtrl     = NewTermController(service.Terminal{})
-	platformCtrl = NewPlatformController(service.Platform{})
+	termCtrl     = internal.NewTermController(service.Terminal{})
+	platformCtrl = internal.NewPlatformController(service.Platform{})
 )
 
 func RouteRegister(g *gin.Engine) {

@@ -1,12 +1,12 @@
-package admin
+package internal
 
 import (
 	"net/http"
 
 	"github.com/mingkid/jtt-gateway/domain/conn"
 	"github.com/mingkid/jtt-gateway/domain/service"
-	"github.com/mingkid/jtt-gateway/server/web/admin/internal/parms"
-	"github.com/mingkid/jtt-gateway/server/web/admin/internal/resp"
+	"github.com/mingkid/jtt-gateway/http/internal/admin/internal/parms"
+	"github.com/mingkid/jtt-gateway/http/internal/admin/internal/resp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +14,13 @@ import (
 type TermController struct {
 	svr            service.Terminal
 	routeGroupPath string
+}
+
+func NewTermController(service service.Terminal) *TermController {
+	return &TermController{
+		svr:            service,
+		routeGroupPath: "/term",
+	}
 }
 
 // 列表页
@@ -95,13 +102,6 @@ func (ctrl TermController) submit(ctx *gin.Context) {
 
 	// 返回响应给前端
 	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
-}
-
-func NewTermController(service service.Terminal) *TermController {
-	return &TermController{
-		svr:            service,
-		routeGroupPath: "/term",
-	}
 }
 
 func (ctrl TermController) Register(g *gin.Engine) {

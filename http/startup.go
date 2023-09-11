@@ -1,8 +1,8 @@
-package web
+package http
 
 import (
-	"github.com/mingkid/jtt-gateway/server/web/admin"
-	v1 "github.com/mingkid/jtt-gateway/server/web/api"
+	"github.com/mingkid/jtt-gateway/http/internal/admin"
+	v1 "github.com/mingkid/jtt-gateway/http/internal/api"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +10,7 @@ import (
 func Serve(port string) {
 	// 初始化http服务
 	s := gin.Default()
-	s.LoadHTMLGlob("server/web/template/**/*")
+	s.LoadHTMLGlob("template/**/*")
 
 	// 注册路由
 	v1.RouteRegister(s)

@@ -1,15 +1,15 @@
-package api
+package internal
 
 import (
 	"encoding/hex"
 	"errors"
 	"net/http"
 
+	"github.com/mingkid/jtt-gateway/http/internal/api/internal/req"
+	"github.com/mingkid/jtt-gateway/http/internal/common"
+	"github.com/mingkid/jtt-gateway/jtt"
 	"github.com/mingkid/jtt-gateway/log"
 	"github.com/mingkid/jtt-gateway/pkg/errcode"
-	"github.com/mingkid/jtt-gateway/server/jtt"
-	"github.com/mingkid/jtt-gateway/server/web/api/internal/req"
-	"github.com/mingkid/jtt-gateway/server/web/common"
 
 	"github.com/gin-gonic/gin"
 	engine "github.com/mingkid/g-jtt"
@@ -17,17 +17,17 @@ import (
 	"github.com/mingkid/g-jtt/protocol/msg"
 )
 
-// videoControlAPI 视频控制API
-type videoControlAPI struct {
+// VideoControlAPI 视频控制API
+type VideoControlAPI struct {
 	l log.RTVSInfoLogger
 }
 
-func NewVideoControlAPI(l log.RTVSInfoLogger) *videoControlAPI {
-	return &videoControlAPI{l: l}
+func NewVideoControlAPI(l log.RTVSInfoLogger) *VideoControlAPI {
+	return &VideoControlAPI{l: l}
 }
 
 // get 请求
-func (api *videoControlAPI) get(ctx *gin.Context) {
+func (api *VideoControlAPI) get(ctx *gin.Context) {
 	// 默认结果
 	res := RTVSResultFail
 	defer func() {
@@ -57,11 +57,11 @@ func (api *videoControlAPI) get(ctx *gin.Context) {
 	}
 }
 
-func (api *videoControlAPI) RegisterRoute(g *gin.RouterGroup) {
+func (api *VideoControlAPI) RegisterRoute(g *gin.RouterGroup) {
 	g.GET("/VideoControl", api.get)
 }
 
-func (api *videoControlAPI) send(params req.VideoControl, msgHead msg.Head) error {
+func (api *VideoControlAPI) send(params req.VideoControl, msgHead msg.Head) error {
 	b, err := packaging(params)
 	if err != nil {
 		return err

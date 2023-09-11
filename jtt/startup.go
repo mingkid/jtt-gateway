@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/mingkid/jtt-gateway/domain/service"
+	"github.com/mingkid/jtt-gateway/jtt/publish"
 	"github.com/mingkid/jtt-gateway/model"
-	"github.com/mingkid/jtt-gateway/server/jtt/publish"
 
 	jtt "github.com/mingkid/g-jtt"
 	"github.com/mingkid/g-jtt/protocol/codec"

@@ -1,10 +1,10 @@
-package admin
+package internal
 
 import (
 	"net/http"
 
 	"github.com/mingkid/jtt-gateway/domain/service"
-	"github.com/mingkid/jtt-gateway/server/web/admin/internal/parms"
+	"github.com/mingkid/jtt-gateway/http/internal/admin/internal/parms"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +12,14 @@ import (
 type PlatformController struct {
 	svr            service.Platform
 	routeGroupPath string
+}
+
+// NewPlatformController 初始化业务平台 Web 控制器
+func NewPlatformController(svr service.Platform) PlatformController {
+	return PlatformController{
+		svr:            svr,
+		routeGroupPath: "/platform",
+	}
 }
 
 // 列表页面
@@ -95,13 +103,5 @@ func (ctrl PlatformController) Register(g *gin.Engine) {
 		// 接口 Endpoint
 		group.POST("/submit", ctrl.submit)
 		group.GET("/del/:ident", ctrl.del)
-	}
-}
-
-// NewPlatformController 初始化业务平台 Web 控制器
-func NewPlatformController(svr service.Platform) PlatformController {
-	return PlatformController{
-		svr:            svr,
-		routeGroupPath: "/platform",
 	}
 }
