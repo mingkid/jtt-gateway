@@ -12,41 +12,38 @@ import (
 	"github.com/mingkid/g-jtt/protocol/msg"
 )
 
+var Svr *jtt.Engine
+
 func Serve(port uint) {
-	jttSvr := jtt.Default()
-	jttSvr.PhoneToTermID = func(ctx *jtt.Context) (string, error) {
-		term, err := service.Terminal{}.GetBySN(ctx.Head().Phone[3:])
+	Svr = jtt.Default()
+	Svr.PhoneToTermID = func(phone string) (string, error) {
+		term, err := service.Terminal{}.GetBySN(phone[3:])
 		if err != nil {
-			if ctx.Head().MsgID == msg.MsgIDTermRegister {
-				_ = ctx.Register(msg.M8100ResultCarNotInDB, "")
-			} else {
-				_ = ctx.Generic(msg.M8001ResultFail)
-			}
 			return "", err
 		}
 		return term.SN, nil
 	}
 
 	// 注册控制器函数
-	jttSvr.RegisterHandler(msg.MsgIDTermRegister, termRegister)
-	jttSvr.RegisterHandler(msg.MsgIDTermAuth, termAuth)
-	jttSvr.RegisterHandler(msg.MsgIDTermLocationReport, locationReport)
-	jttSvr.RegisterHandler(msg.MsgIDTermLocationBatch, locationBatchReport)
-	jttSvr.RegisterHandler(msg.MsgIDTermHeartbeat, termHearBeat)
+	Svr.RegisterHandler(msg.MsgIDTermRegister, termRegister)
+	Svr.RegisterHandler(msg.MsgIDTermAuth, termAuth)
+	Svr.RegisterHandler(msg.MsgIDTermLocationReport, locationReport)
+	Svr.RegisterHandler(msg.MsgIDTermLocationBatch, locationBatchReport)
+	Svr.RegisterHandler(msg.MsgIDTermHeartbeat, termHearBeat)
 
-	jttSvr.Serve("", port)
+	Svr.Serve("", port)
 }
 
 func termRegister(ctx *jtt.Context) {
 	var (
+		m       msg.MsgWith[msg.M0100]
 		decoder codec.Decoder
 		err     error
 
-		m   = msg.New[msg.M0100]()
 		res = msg.M8100ResultSuccess
 	)
 
-	_ = decoder.Decode(m, ctx.Data())
+	_ = decoder.Decode(&m, ctx.Data())
 
 	// 业务处理
 	termService := service.NewTerminal()
@@ -61,13 +58,13 @@ func termRegister(ctx *jtt.Context) {
 
 func termAuth(ctx *jtt.Context) {
 	var (
+		m       msg.MsgWith[msg.M0102]
 		decoder codec.Decoder
 
-		m   = msg.New[msg.M0102]()
 		res = msg.M8001ResultSuccess
 	)
 
-	_ = decoder.Decode(m, ctx.Data())
+	_ = decoder.Decode(&m, ctx.Data())
 
 	// 业务处理：token 校验
 	token := m.Body.Token
@@ -80,14 +77,14 @@ func termAuth(ctx *jtt.Context) {
 
 func locationReport(ctx *jtt.Context) {
 	var (
+		m       msg.MsgWith[msg.M0200]
 		decoder codec.Decoder
 		err     error
 
-		m   = msg.New[msg.M0200]()
 		res = msg.M8001ResultSuccess
 	)
 
-	_ = decoder.Decode(m, ctx.Data())
+	_ = decoder.Decode(&m, ctx.Data())
 
 	// 业务处理：终端定位更新
 	termService := service.Terminal{}
@@ -122,14 +119,14 @@ func locationReport(ctx *jtt.Context) {
 
 func locationBatchReport(ctx *jtt.Context) {
 	var (
+		m       msg.MsgWith[msg.M0704]
 		decoder codec.Decoder
 		err     error
 
-		m   = msg.New[msg.M0704]()
 		res = msg.M8001ResultSuccess
 	)
 
-	_ = decoder.Decode(m, ctx.Data())
+	_ = decoder.Decode(&m, ctx.Data())
 
 	// 业务处理
 	platformService := service.Platform{}

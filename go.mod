@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/mingkid/g-jtt v0.0.0-20230831065432-c653cbd51c2d
+	github.com/mingkid/g-jtt v0.0.0-20230911075129-08b91f640a68
 	github.com/spf13/viper v1.16.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gen v0.3.22
@@ -50,7 +50,7 @@ require (
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.11.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
