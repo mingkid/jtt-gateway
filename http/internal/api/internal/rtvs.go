@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/mingkid/jtt-gateway/http/internal/api/internal/req"
 	"github.com/mingkid/jtt-gateway/http/internal/common"
@@ -34,6 +35,7 @@ func (api *VideoControlAPI) get(ctx *gin.Context) {
 		ctx.String(http.StatusOK, res)
 	}()
 
+	// 参数绑定
 	var params req.VideoControl
 	err := ctx.ShouldBindQuery(&params)
 	if err != nil {
@@ -41,19 +43,24 @@ func (api *VideoControlAPI) get(ctx *gin.Context) {
 		return
 	}
 
+	// 消息头解析
 	var msgHead msg.Head
 	_ = params.Bind(&msgHead)
 
+	// 消息下发终端
+	if err := api.send(params, msgHead); err != nil {
+		if errors.Is(err, engine.DeviceOfflineError{}) {
+			res = RTVSResultOffline
+		}
+		// TODO: 打印错误信息
+		return
+	}
+
 	switch msgHead.MsgID {
 	case msg.MsgIDRealtimePlay, msg.MsgIDRealtimePlayCtrl, msg.MsgIDRealtimePlayStatus:
-		if err := api.send(params, msgHead); err != nil {
-			if errors.Is(err, engine.DeviceOfflineError{}) {
-				res = RTVSResultOffline
-			}
-			// TODO: 打印错误信息
-			return
-		}
 		res = RTVSResultSuccess
+	case msg.MsgIDPlayback, msg.MsgIDPlaybackList:
+		res = strconv.Itoa(int(msgHead.SN))
 	}
 }
 
