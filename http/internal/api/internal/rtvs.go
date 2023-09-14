@@ -73,7 +73,7 @@ func (api *VideoControlAPI) send(params req.VideoControl, msgHead msg.Head) erro
 	if err != nil {
 		return err
 	}
-	if err = jtt.Svr.SendBytes(msgHead.Phone, b); err != nil {
+	if err = engine.SendBytes(jtt.Svr, msgHead.Phone, b); err != nil {
 		return err
 	}
 	api.l.Log(msgHead, hex.EncodeToString(b))

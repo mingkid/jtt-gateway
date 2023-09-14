@@ -36,7 +36,7 @@ func Serve(port uint) {
 
 func termRegister(ctx *jtt.Context) {
 	var (
-		m       msg.MsgWith[msg.M0100]
+		m       msg.Msg[msg.M0100]
 		decoder codec.Decoder
 		err     error
 
@@ -58,7 +58,7 @@ func termRegister(ctx *jtt.Context) {
 
 func termAuth(ctx *jtt.Context) {
 	var (
-		m       msg.MsgWith[msg.M0102]
+		m       msg.Msg[msg.M0102]
 		decoder codec.Decoder
 
 		res = msg.M8001ResultSuccess
@@ -77,7 +77,7 @@ func termAuth(ctx *jtt.Context) {
 
 func locationReport(ctx *jtt.Context) {
 	var (
-		m       msg.MsgWith[msg.M0200]
+		m       msg.Msg[msg.M0200]
 		decoder codec.Decoder
 		err     error
 
@@ -119,7 +119,7 @@ func locationReport(ctx *jtt.Context) {
 
 func locationBatchReport(ctx *jtt.Context) {
 	var (
-		m       msg.MsgWith[msg.M0704]
+		m       msg.Msg[msg.M0704]
 		decoder codec.Decoder
 		err     error
 
