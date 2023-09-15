@@ -27,10 +27,10 @@ func newPlatform(db *gorm.DB, opts ...gen.DOOption) platform {
 
 	tableName := _platform.platformDo.TableName()
 	_platform.ALL = field.NewAsterisk(tableName)
+	_platform.ID = field.NewUint(tableName, "id")
 	_platform.Identity = field.NewString(tableName, "identity")
 	_platform.Host = field.NewString(tableName, "host")
 	_platform.LocationAPI = field.NewString(tableName, "location_api")
-	_platform.Method = field.NewString(tableName, "method")
 
 	_platform.fillFieldMap()
 
@@ -41,10 +41,10 @@ type platform struct {
 	platformDo
 
 	ALL         field.Asterisk
+	ID          field.Uint
 	Identity    field.String
 	Host        field.String
 	LocationAPI field.String
-	Method      field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -61,10 +61,10 @@ func (p platform) As(alias string) *platform {
 
 func (p *platform) updateTableName(table string) *platform {
 	p.ALL = field.NewAsterisk(table)
+	p.ID = field.NewUint(table, "id")
 	p.Identity = field.NewString(table, "identity")
 	p.Host = field.NewString(table, "host")
 	p.LocationAPI = field.NewString(table, "location_api")
-	p.Method = field.NewString(table, "method")
 
 	p.fillFieldMap()
 
@@ -82,10 +82,10 @@ func (p *platform) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 
 func (p *platform) fillFieldMap() {
 	p.fieldMap = make(map[string]field.Expr, 4)
+	p.fieldMap["id"] = p.ID
 	p.fieldMap["identity"] = p.Identity
 	p.fieldMap["host"] = p.Host
 	p.fieldMap["location_api"] = p.LocationAPI
-	p.fieldMap["method"] = p.Method
 }
 
 func (p platform) clone(db *gorm.DB) platform {

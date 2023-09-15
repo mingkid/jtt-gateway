@@ -8,18 +8,17 @@
 <table class="table">
     <thead>
     <tr>
-        <th scope="col">序列号</th>
         <th scope="col">SIM</th>
         <th scope="col">状态</th>
         <th scope="col">经纬度</th>
+        <th scope="col">定位时间</th>
         <th scope="col">操作</th>
     </tr>
     </thead>
     <tbody>
     {{ range .Terms }}
     <tr>
-        <th scope="row">{{ .SN }}</th>
-        <td>{{ .SIM }}</td>
+        <th scope="row">{{ .SIM }}</th>
         <td>
             {{ if .Status }}
             <span class="badge bg-success">在线</span>
@@ -28,11 +27,12 @@
             {{ end }}
         </td>
         <td>{{ .Lng }}, {{ .Lat }}</td>
+        <td>{{ .LocateAt | formatAsTime }}</td>
         <td>
-            <a href="/term/edit/{{ .SN }}" class="btn btn-primary btn-sm">
+            <a href="/term/edit/{{ .SIM }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-pencil-square"></i>
             </a>
-            <a href="/term/del/{{ .SN }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该项数据吗？')">
+            <a href="/term/del/{{ .SIM }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该项数据吗？')">
                 <i class="bi bi-trash-fill"></i>
             </a>
         </td>

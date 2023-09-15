@@ -1,7 +1,9 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/mingkid/jtt-gateway/dal/mapper"
 	"github.com/mingkid/jtt-gateway/model"
@@ -13,14 +15,18 @@ import (
 type Terminal struct{}
 
 // Locate 定位汇报
-func (t Terminal) Locate(sn string, lng, lat float64) error {
-	term, err := t.GetBySN(sn)
+func (t Terminal) Locate(sn string, lng, lat float64, locateAt time.Time) error {
+	term, err := t.GetBySIM(sn)
 	if err != nil {
 		return err
 	}
 	term.Lng = lng
 	term.Lat = lat
-	_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Like("%" + sn)).Updates(&term)
+	term.LocateAt = sql.NullInt64{
+		Int64: locateAt.Unix(),
+		Valid: true,
+	}
+	_, err = mapper.Q.Term.Where(mapper.Q.Term.SIM.Like("%" + sn)).Updates(&term)
 	return nil
 }
 
@@ -28,28 +34,27 @@ func (t Terminal) All() ([]*model.Term, error) {
 	return mapper.Q.Term.Find()
 }
 
-func (t Terminal) GetBySN(sn string) (term *model.Term, err error) {
-	term, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Like(fmt.Sprintf("%%%s", sn))).First()
+func (t Terminal) GetBySIM(sim string) (term *model.Term, err error) {
+	term, err = mapper.Q.Term.Where(mapper.Q.Term.SIM.Like(fmt.Sprintf("%%%s", sim))).First()
 	return
 }
 
-func (t Terminal) Save(sn, sim string) (err error) {
+func (t Terminal) Save(sim string) (err error) {
 	// 只提供更新SIM
-	if sn == "" {
+	if sim == "" {
 		return errcode.TermSNNotNull
 	}
 	// 判断终端是否存在数据库
-	term, err := t.GetBySN(sn)
+	term, err := t.GetBySIM(sim)
 	if err != gorm.ErrRecordNotFound && err != nil {
 		return
 	}
 	if term != nil {
 		// 更新终端
 		term.SIM = sim
-		_, err = mapper.Q.Term.Where(mapper.Q.Term.SN.Eq(sn)).Updates(&term)
+		_, err = mapper.Q.Term.Where(mapper.Q.Term.SIM.Eq(sim)).Updates(&term)
 	} else {
 		err = mapper.Q.Term.Create(&model.Term{
-			SN:  sn,
 			SIM: sim,
 		})
 	}
@@ -59,7 +64,7 @@ func (t Terminal) Save(sn, sim string) (err error) {
 // Delete 删除终端
 func (t Terminal) Delete(sn string) (err error) {
 	var term *model.Term
-	term, err = t.GetBySN(sn)
+	term, err = t.GetBySIM(sn)
 	if err != nil {
 		return err
 	}

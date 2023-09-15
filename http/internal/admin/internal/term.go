@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/mingkid/jtt-gateway/domain/conn"
@@ -29,18 +30,18 @@ func (ctrl TermController) index(ctx *gin.Context) {
 	var terms []resp.Term
 	for _, data := range dataSet {
 		// 计算设备存活状态
-		session := conn.DefaultConnPool().Get(data.SN)
+		session := conn.DefaultConnPool().Get(data.SIM)
 		status := false
 		if session != nil {
 			status = session.IsTimeout()
 		}
 
 		terms = append(terms, resp.Term{
-			SN:     data.SN,
-			SIM:    data.SIM,
-			Status: status,
-			Lng:    data.Lng,
-			Lat:    data.Lat,
+			SIM:      data.SIM,
+			Status:   status,
+			Lng:      data.Lng,
+			Lat:      data.Lat,
+			LocateAt: data.LocateAt.Int64,
 		})
 	}
 
@@ -60,7 +61,7 @@ func (ctrl TermController) create(ctx *gin.Context) {
 
 // 编辑页
 func (ctrl TermController) edit(ctx *gin.Context) {
-	term, err := ctrl.svr.GetBySN(ctx.Param("sn"))
+	term, err := ctrl.svr.GetBySIM(ctx.Param("sn"))
 	if err != nil {
 		ctx.String(http.StatusNotFound, "%s", "Not Found")
 	}
@@ -95,7 +96,7 @@ func (ctrl TermController) submit(ctx *gin.Context) {
 	}
 
 	// 处理表单数据
-	err := ctrl.svr.Save(args.SN, args.SIM)
+	err := ctrl.svr.Save(args.SIM)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "系统异常：%s", err.Error())
 	}
@@ -105,6 +106,11 @@ func (ctrl TermController) submit(ctx *gin.Context) {
 }
 
 func (ctrl TermController) Register(g *gin.Engine) {
+	// 注册模板功能
+	g.SetFuncMap(template.FuncMap{
+		"formatAsTime": FormatAsTimestamp,
+	})
+
 	group := g.Group(ctrl.routeGroupPath)
 	{
 		// 页面渲染 Endpoint

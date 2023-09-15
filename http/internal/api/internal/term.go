@@ -16,17 +16,17 @@ type TerminalAPI struct{}
 
 // post 请求；新增终端
 func (api TerminalAPI) post(c *gin.Context) {
-	var args req.TermSave
+	var args req.TermIdentity
 	if err := c.ShouldBind(&args); err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
-	args.SN = strings.TrimSpace(args.SN)
+	args.SIM = strings.TrimSpace(args.SIM)
 	args.SIM = strings.TrimSpace(args.SIM)
 
 	// 创建终端service
 	termService := service.NewTerminal()
-	err := termService.Save(args.SN, args.SIM)
+	err := termService.Save(args.SIM)
 	if err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
@@ -42,11 +42,11 @@ func (api TerminalAPI) delete(c *gin.Context) {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
-	args.SN = strings.TrimSpace(args.SN)
+	args.SIM = strings.TrimSpace(args.SIM)
 
 	// 删除终端service
 	termService := service.NewTerminal()
-	err := termService.Delete(args.SN)
+	err := termService.Delete(args.SIM)
 	if err != nil {
 		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return

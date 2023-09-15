@@ -17,11 +17,11 @@ var Svr *jtt.Engine
 func Serve(port uint) {
 	Svr = jtt.Default()
 	Svr.PhoneToTermID = func(phone string) (string, error) {
-		term, err := service.Terminal{}.GetBySN(phone[3:])
+		term, err := service.Terminal{}.GetBySIM(phone[3:])
 		if err != nil {
 			return "", err
 		}
-		return term.SN, nil
+		return term.SIM, nil
 	}
 
 	// 注册控制器函数
@@ -47,7 +47,7 @@ func termRegister(ctx *jtt.Context) {
 
 	// 业务处理
 	termService := service.NewTerminal()
-	if _, err = termService.GetBySN(m.Body.TermID); err != nil {
+	if _, err = termService.GetBySIM(m.Body.TermID); err != nil {
 		res = msg.M8100TermNotInDB
 		ctx.Register(res, "")
 		return
@@ -90,7 +90,13 @@ func locationReport(ctx *jtt.Context) {
 	termService := service.Terminal{}
 	lng := float64(m.Body.Longitude) / 1000000.0
 	lat := float64(m.Body.Latitude) / 1000000.0
-	if err = termService.Locate(m.Head.Phone[3:], lng, lat); err != nil {
+	locateAt, err := m.Body.LocateTime()
+	if err != nil {
+		res = msg.M8001ResultFail
+		ctx.Generic(res)
+		return
+	}
+	if err = termService.Locate(m.Head.Phone[3:], lng, lat, locateAt); err != nil {
 		res = msg.M8001ResultFail
 		ctx.Generic(res)
 		return
@@ -162,7 +168,7 @@ func termHearBeat(ctx *jtt.Context) {
 	_ = decoder.Decode(&m, ctx.Data())
 
 	// 业务处理
-	_, err := service.NewTerminal().GetBySN(ctx.Head().Phone[3:])
+	_, err := service.NewTerminal().GetBySIM(ctx.Head().Phone[3:])
 	if err != nil {
 		res = msg.M8001ResultFail
 		ctx.Generic(res)

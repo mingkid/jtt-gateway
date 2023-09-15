@@ -27,9 +27,11 @@ func newTerm(db *gorm.DB, opts ...gen.DOOption) term {
 
 	tableName := _term.termDo.TableName()
 	_term.ALL = field.NewAsterisk(tableName)
-	_term.SN = field.NewString(tableName, "sn")
 	_term.SIM = field.NewString(tableName, "sim")
-	_term.Alive = field.NewField(tableName, "alive")
+	_term.Lat = field.NewFloat64(tableName, "lat")
+	_term.Lng = field.NewFloat64(tableName, "lng")
+	_term.LocateAt = field.NewField(tableName, "locate_at")
+	_term.Interval = field.NewField(tableName, "interval")
 
 	_term.fillFieldMap()
 
@@ -39,10 +41,12 @@ func newTerm(db *gorm.DB, opts ...gen.DOOption) term {
 type term struct {
 	termDo
 
-	ALL   field.Asterisk
-	SN    field.String
-	SIM   field.String
-	Alive field.Field
+	ALL      field.Asterisk
+	SIM      field.String
+	Lat      field.Float64
+	Lng      field.Float64
+	LocateAt field.Field
+	Interval field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -59,9 +63,11 @@ func (t term) As(alias string) *term {
 
 func (t *term) updateTableName(table string) *term {
 	t.ALL = field.NewAsterisk(table)
-	t.SN = field.NewString(table, "sn")
 	t.SIM = field.NewString(table, "sim")
-	t.Alive = field.NewField(table, "alive")
+	t.Lat = field.NewFloat64(table, "lat")
+	t.Lng = field.NewFloat64(table, "lng")
+	t.LocateAt = field.NewField(table, "locate_at")
+	t.Interval = field.NewField(table, "interval")
 
 	t.fillFieldMap()
 
@@ -78,10 +84,12 @@ func (t *term) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *term) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 3)
-	t.fieldMap["sn"] = t.SN
+	t.fieldMap = make(map[string]field.Expr, 5)
 	t.fieldMap["sim"] = t.SIM
-	t.fieldMap["alive"] = t.Alive
+	t.fieldMap["lat"] = t.Lat
+	t.fieldMap["lng"] = t.Lng
+	t.fieldMap["locate_at"] = t.LocateAt
+	t.fieldMap["interval"] = t.Interval
 }
 
 func (t term) clone(db *gorm.DB) term {
