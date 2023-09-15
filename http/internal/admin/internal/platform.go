@@ -5,6 +5,7 @@ import (
 
 	"github.com/mingkid/jtt-gateway/domain/service"
 	"github.com/mingkid/jtt-gateway/http/internal/admin/internal/parms"
+	"github.com/mingkid/jtt-gateway/pkg/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -90,6 +91,35 @@ func (ctrl PlatformController) del(ctx *gin.Context) {
 	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
 }
 
+func (ctrl PlatformController) generateAccessToken(ctx *gin.Context) {
+	// 创建FormData结构体实例
+	var args parms.PlatformIdentity
+
+	// 将请求参数绑定到数据模型
+	if err := ctx.ShouldBindUri(&args); err != nil {
+		ctx.String(http.StatusBadRequest, "参数异常：%s", err.Error())
+		return
+	}
+
+	p, err := ctrl.svr.GetByIdentity(args.Identity)
+	if err != nil {
+		ctx.String(http.StatusNotFound, "%s", "Not Found")
+	}
+
+	err = ctrl.svr.Save(service.PlatformSaveOpt{
+		Identity:    p.Identity,
+		Host:        p.Host,
+		LocationAPI: p.LocationAPI,
+		AccessToken: token.GenerateAccessToken("", token.BitLength64, token.CharsetLettersNumbersAndSymbols),
+	})
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "系统异常：%s", err.Error())
+	}
+
+	// 返回响应给前端
+	ctx.Redirect(http.StatusSeeOther, ctrl.routeGroupPath)
+}
+
 // Register 注册控制器到指定的 Web 服务实例中
 func (ctrl PlatformController) Register(g *gin.Engine) {
 	group := g.Group(ctrl.routeGroupPath)
@@ -103,5 +133,6 @@ func (ctrl PlatformController) Register(g *gin.Engine) {
 		// 接口 Endpoint
 		group.POST("/submit", ctrl.submit)
 		group.GET("/del/:ident", ctrl.del)
+		group.GET("/generate-access-token/:ident", ctrl.generateAccessToken)
 	}
 }

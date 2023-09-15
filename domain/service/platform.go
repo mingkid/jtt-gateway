@@ -26,11 +26,13 @@ func (p Platform) Save(opt PlatformSaveOpt) error {
 			Identity:    opt.Identity,
 			Host:        opt.Host,
 			LocationAPI: opt.LocationAPI,
+			AccessToken: opt.AccessToken,
 		})
 	} else {
 		// 更新
 		platform.Host = opt.Host
 		platform.LocationAPI = opt.LocationAPI
+		platform.AccessToken = opt.AccessToken
 		_, err = mapper.Q.Platform.Where(mapper.Q.Platform.Identity.Eq(opt.Identity)).Updates(&platform)
 	}
 	return nil
@@ -55,4 +57,5 @@ type PlatformSaveOpt struct {
 	Identity    string // 平台标识
 	Host        string // 域名
 	LocationAPI string // 定位 API
+	AccessToken string // 访问令牌
 }

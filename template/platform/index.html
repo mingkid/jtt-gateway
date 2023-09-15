@@ -11,6 +11,7 @@
     <th scope="col">平台标识</th>
     <th scope="col">域名</th>
     <th scope="col">接口</th>
+    <th scope="col">AccessToken</th>
     <th scope="col">操作</th>
   </tr>
   </thead>
@@ -24,9 +25,17 @@
       <span class="badge text-bg-secondary">0x0200</span>
       {{ end }}
     </td>
+    {{ if .AccessToken }}
+    <td>{{ .AccessToken }}</td>
+    {{ else }}
+    <td> - </td>
+    {{ end }}
     <td>
       <a href="/platform/edit/{{ .Identity }}" class="btn btn-primary btn-sm">
         <i class="bi bi-pencil-square"></i>
+      </a>
+      <a href="/platform/generate-access-token/{{ .Identity }}" class="btn btn-sm" onclick="return confirm('重新生成 Token 会导致现有的失效，继续吗？')">
+        <i class="bi bi-arrow-clockwise"></i>
       </a>
       <a href="/platform/del/{{ .Identity }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该项数据吗？')">
         <i class="bi bi-trash-fill"></i>

@@ -31,6 +31,7 @@ func newPlatform(db *gorm.DB, opts ...gen.DOOption) platform {
 	_platform.Identity = field.NewString(tableName, "identity")
 	_platform.Host = field.NewString(tableName, "host")
 	_platform.LocationAPI = field.NewString(tableName, "location_api")
+	_platform.AccessToken = field.NewString(tableName, "access_token")
 
 	_platform.fillFieldMap()
 
@@ -45,6 +46,7 @@ type platform struct {
 	Identity    field.String
 	Host        field.String
 	LocationAPI field.String
+	AccessToken field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -65,6 +67,7 @@ func (p *platform) updateTableName(table string) *platform {
 	p.Identity = field.NewString(table, "identity")
 	p.Host = field.NewString(table, "host")
 	p.LocationAPI = field.NewString(table, "location_api")
+	p.AccessToken = field.NewString(table, "access_token")
 
 	p.fillFieldMap()
 
@@ -81,11 +84,12 @@ func (p *platform) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *platform) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 4)
+	p.fieldMap = make(map[string]field.Expr, 5)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["identity"] = p.Identity
 	p.fieldMap["host"] = p.Host
 	p.fieldMap["location_api"] = p.LocationAPI
+	p.fieldMap["access_token"] = p.AccessToken
 }
 
 func (p platform) clone(db *gorm.DB) platform {
