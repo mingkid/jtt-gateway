@@ -15,8 +15,8 @@ import (
 type Terminal struct{}
 
 // Locate 定位汇报
-func (t Terminal) Locate(sn string, lng, lat float64, locateAt time.Time) error {
-	term, err := t.GetBySIM(sn)
+func (t Terminal) Locate(sim string, lng, lat float64, locateAt time.Time) error {
+	term, err := t.GetBySIM(sim)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (t Terminal) Locate(sn string, lng, lat float64, locateAt time.Time) error 
 		Int64: locateAt.Unix(),
 		Valid: true,
 	}
-	_, err = mapper.Q.Term.Where(mapper.Q.Term.SIM.Like("%" + sn)).Updates(&term)
+	_, err = mapper.Q.Term.Where(mapper.Q.Term.SIM.Like("%" + sim)).Updates(&term)
 	return nil
 }
 

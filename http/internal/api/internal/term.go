@@ -12,53 +12,38 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TerminalAPI struct{}
+type TermAPI struct {
+	svr *service.Terminal
+}
 
-// post 请求；新增终端
-func (api TerminalAPI) post(c *gin.Context) {
-	var args req.TermIdentity
-	if err := c.ShouldBind(&args); err != nil {
-		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
-		return
+func NewTermAPI() *TermAPI {
+	return &TermAPI{
+		svr: service.NewTerminal(),
 	}
-	args.SIM = strings.TrimSpace(args.SIM)
-	args.SIM = strings.TrimSpace(args.SIM)
-
-	// 创建终端service
-	termService := service.NewTerminal()
-	err := termService.Save(args.SIM)
-	if err != nil {
-		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
-		return
-	}
-	// 成功响应
-	common.NewSingleResponse(c, nil).Return(http.StatusOK)
 }
 
 // delete 请求；删除终端
-func (api TerminalAPI) delete(c *gin.Context) {
+func (api *TermAPI) delete(c *gin.Context) {
 	var args req.TermIdentity
 	if err := c.ShouldBindUri(&args); err != nil {
-		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
+		common.NewErrorResponse(c, errcode.ParamsError.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
 	args.SIM = strings.TrimSpace(args.SIM)
 
 	// 删除终端service
-	termService := service.NewTerminal()
-	err := termService.Delete(args.SIM)
+	err := api.svr.Delete(args.SIM)
 	if err != nil {
-		common.NewErrorResponse(c, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
+		common.NewErrorResponse(c, errcode.NotFoundError.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
 	// 成功响应
 	common.NewSingleResponse(c, nil).Return(http.StatusOK)
 }
 
-func (api TerminalAPI) Register(g *gin.RouterGroup) {
-	r := g.Group("/terminal")
+func (api *TermAPI) Register(g *gin.RouterGroup) {
+	r := g.Group("/term")
 	{
-		r.POST("", api.post)         // 新增终端
-		r.DELETE("/:sn", api.delete) // 删除终端
+		r.DELETE("/:sn", PlatformAuth(), api.delete) // 删除终端
 	}
 }

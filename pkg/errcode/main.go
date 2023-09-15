@@ -50,5 +50,7 @@ func (e Error) SetMsg(msg string) Error {
 // 存放公共的异常码
 
 var (
-	ParamsException = NewError(1000000, "参数错误")
+	ParamsError       = NewError(1000000, "参数错误")
+	UnauthorizedError = NewError(1000001, "未授权")
+	NotFoundError     = NewError(1000002, "未找到")
 )

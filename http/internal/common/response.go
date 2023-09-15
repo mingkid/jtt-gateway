@@ -115,5 +115,5 @@ func (resp ErrorResponse) Return(httpStatus int) {
 		"data":    nil,
 	}
 
-	resp.ctx.JSON(httpStatus, response)
+	resp.ctx.AbortWithStatusJSON(httpStatus, response)
 }

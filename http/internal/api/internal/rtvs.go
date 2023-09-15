@@ -39,7 +39,7 @@ func (api *VideoControlAPI) get(ctx *gin.Context) {
 	var params req.VideoControl
 	err := ctx.ShouldBindQuery(&params)
 	if err != nil {
-		common.NewErrorResponse(ctx, errcode.ParamsException.SetMsg(err.Error())).Return(http.StatusBadRequest)
+		common.NewErrorResponse(ctx, errcode.ParamsError.SetMsg(err.Error())).Return(http.StatusBadRequest)
 		return
 	}
 

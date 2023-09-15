@@ -43,6 +43,11 @@ func (p Platform) GetByIdentity(ident string) (platform *model.Platform, err err
 	return
 }
 
+func (p Platform) GetByToken(token string) (platform *model.Platform, err error) {
+	platform, err = mapper.Q.Platform.Where(mapper.Q.Platform.AccessToken.Eq(token)).First()
+	return
+}
+
 func (p Platform) Delete(ident string) error {
 	platform, err := p.GetByIdentity(ident)
 	if err != nil {
