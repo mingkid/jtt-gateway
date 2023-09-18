@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	CharsetLettersAndNumbers        = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	CharsetLettersNumbersAndSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:'\",.<>?\\"
+	CharsetLettersAndNumbers        = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
+	CharsetLettersNumbersAndSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789!-=\\"
 	CharsetLetters                  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	CharsetLowercaseLetters         = "abcdefghijklmnopqrstuvwxyz"
 	CharsetUppercaseLetters         = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
