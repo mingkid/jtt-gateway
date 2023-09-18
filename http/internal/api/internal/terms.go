@@ -38,7 +38,7 @@ func (api *TermsAPI) post(c *gin.Context) {
 		return
 	}
 	// 成功响应
-	common.NewSingleResponse(c, nil).Return(http.StatusOK)
+	common.NewSingleResponse(c, nil).Return(http.StatusCreated)
 }
 
 func (api *TermsAPI) Register(g *gin.RouterGroup) {
