@@ -44,6 +44,6 @@ func (api *TermAPI) delete(c *gin.Context) {
 func (api *TermAPI) Register(g *gin.RouterGroup) {
 	r := g.Group("/term")
 	{
-		r.DELETE("/:sn", PlatformAuth(), api.delete) // 删除终端
+		r.DELETE("/:sim", PlatformAuth(), api.delete) // 删除终端
 	}
 }
